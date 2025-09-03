@@ -260,8 +260,8 @@ class ContactIdentityResolutionEngine:
                     }
                 )
                 
-                # Apply business rules - Only exact matches (score = 1.0) for new rules
-                if identity_score >= 1.0:  # Exact match based on new rules
+                # Apply business rules - Only exact matches (score = 0.95) for new rules
+                if identity_score >= 0.95:  # Exact match based on new rules
                     matches.append((candidate_contact, identity_score))
                     logger.debug(f"Identity match found: {primary_contact.first_name} {primary_contact.last_name} vs {candidate_contact.first_name} {candidate_contact.last_name}, Score: {identity_score:.3f}")
                     logger.debug(f"  Rules: First Name fuzzy={self.fuzzy_matcher.calculate_first_name_similarity(primary_contact.first_name, candidate_contact.first_name):.3f}, Last Name exact={1.0 if primary_contact.last_name.lower() == candidate_contact.last_name.lower() else 0.0}, Email exact={1.0 if primary_contact.email.lower() == candidate_contact.email.lower() else 0.0}, Phone digits={1.0 if ''.join(filter(str.isdigit, primary_contact.phone)) == ''.join(filter(str.isdigit, candidate_contact.phone)) else 0.0}")
