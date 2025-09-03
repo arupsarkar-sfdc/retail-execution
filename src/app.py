@@ -437,7 +437,7 @@ def main():
     initialize_session_state()
     
     # App header
-    st.title("📚 PDF Chat QA with OpenAI & FAISS")
+    st.title("📚 Agentic AI with OpenAI & FAISS")
     st.markdown("Upload a PDF and chat with its content using OpenAI's powerful language models!")
     
     # Render sidebar and get configuration

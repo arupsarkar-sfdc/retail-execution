@@ -8,9 +8,17 @@ from loguru import logger
 import sys
 from pathlib import Path
 
-# Package imports are now handled by the package structure
-from .connection import SnowflakeManager
-from ...config import settings
+# Add project root to path for standalone execution
+project_root = Path(__file__).parent.parent.parent.parent
+sys.path.append(str(project_root))
+
+try:
+    from .connection import SnowflakeManager
+    from ...config import settings
+except ImportError:
+    # Fallback for standalone execution
+    from pmi_retail.database.snowflake.connection import SnowflakeManager
+    from pmi_retail.config import settings
 
 
 class PMITableBuilder:
@@ -54,6 +62,7 @@ class PMITableBuilder:
                     HIERARCHY_LEVEL INTEGER DEFAULT 1, -- 1=Parent, 2=Child, 3=Grandchild
                     ANNUAL_REVENUE DECIMAL(15,2),
                     EMPLOYEE_COUNT INTEGER,
+                    ENTERPRISE_ID VARCHAR(50), -- For identity resolution matching
                     CREATED_TIMESTAMP TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
                     UPDATED_TIMESTAMP TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
                 )

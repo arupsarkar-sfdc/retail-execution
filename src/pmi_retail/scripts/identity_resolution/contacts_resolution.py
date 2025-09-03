@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Identity Resolution Job for CONTACTS Table - Snowflake Integration
-Demonstrates Salesforce Data Cloud + Agent Force value proposition using real data
+Advanced Contact Identity Resolution with Levenshtein Distance
+Uses proper fuzzy matching algorithms for accurate duplicate detection
 """
 
 import pandas as pd
 import numpy as np
 from datetime import datetime
-import re
+import uuid
 from typing import List, Dict, Tuple, Optional
 import logging
 from pathlib import Path
@@ -17,8 +17,10 @@ from dataclasses import dataclass
 try:
     from pmi_retail.database.snowflake.connection import SnowflakeManager
     from pmi_retail.config import settings
-except ImportError:
-    print("Error: Cannot import Snowflake modules. Make sure you're running from the project root.")
+    from pmi_retail.scripts.identity_resolution.utils.fuzzy_matching import FuzzyMatcher
+except ImportError as e:
+    print(f"Error: Cannot import required modules: {e}")
+    print("Make sure you're running from the project root and dependencies are installed.")
     exit(1)
 
 # Configure logging
@@ -59,41 +61,31 @@ class ContactMatchResult:
     recommended_action: str
     total_contacts_in_group: int
     linked_accounts: List[str]
+    unified_guid: str  # Unified GUID for the deduplicated group
 
 class ContactIdentityResolutionEngine:
-    """Advanced Contact Identity Resolution Engine for Snowflake CONTACTS table"""
+    """Advanced Contact Identity Resolution Engine using Levenshtein Distance"""
     
     def __init__(self, snowflake_manager: SnowflakeManager):
         self.sf = snowflake_manager
-        self.matching_rules = {
-            'exact_match': {
-                'email_exact': 0.95,
-                'phone_exact': 0.90,
-                'name_exact': 0.85
-            },
-            'fuzzy_match': {
-                'name_similarity': 0.80,
-                'address_similarity': 0.75,
-                'phone_similarity': 0.70
-            }
-        }
+        self.fuzzy_matcher = FuzzyMatcher()
         
-        # Business rules for different contact types - Lowered for testing
+        # Business rules for different contact types
         self.business_rules = {
             'Consumer': {
-                'min_confidence': 0.20,  # Lowered from 0.85
-                'require_multiple_indicators': False,  # Changed to False
-                'manual_review_threshold': 0.30  # Lowered from 0.90
+                'min_confidence': 0.20,
+                'require_multiple_indicators': False,
+                'manual_review_threshold': 0.30
             },
             'Business': {
-                'min_confidence': 0.25,  # Lowered from 0.80
-                'require_multiple_indicators': False,  # Changed to False
-                'manual_review_threshold': 0.35  # Lowered from 0.85
+                'min_confidence': 0.25,
+                'require_multiple_indicators': False,
+                'manual_review_threshold': 0.35
             },
             'Partner': {
-                'min_confidence': 0.20,  # Lowered from 0.75
+                'min_confidence': 0.20,
                 'require_multiple_indicators': False,
-                'manual_review_threshold': 0.30  # Lowered from 0.80
+                'manual_review_threshold': 0.30
             }
         }
     
@@ -134,23 +126,23 @@ class ContactIdentityResolutionEngine:
             contacts = []
             for _, row in result.iterrows():
                 contact = ContactRecord(
-                    contact_id=str(row[0]),
-                    first_name=str(row[1]) if row[1] else '',
-                    last_name=str(row[2]) if row[2] else '',
-                    email=str(row[3]) if row[3] else '',
-                    phone=str(row[4]) if row[4] else '',
-                    mobile_phone=str(row[5]) if row[5] else '',
-                    contact_type=str(row[6]) if row[6] else 'Consumer',
-                    account_id=str(row[7]) if row[7] else '',
-                    job_title=str(row[8]) if row[8] else '',
-                    department=str(row[9]) if row[9] else '',
-                    address_line1=str(row[10]) if row[10] else '',
-                    city=str(row[11]) if row[11] else '',
-                    state=str(row[12]) if row[12] else '',
-                    zip_code=str(row[13]) if row[13] else '',
-                    status=str(row[14]) if row[14] else 'Active',
-                    created_timestamp=str(row[15]) if row[15] else '',
-                    updated_timestamp=str(row[16]) if row[16] else ''
+                    contact_id=str(row.iloc[0]),
+                    first_name=str(row.iloc[1]) if row.iloc[1] else '',
+                    last_name=str(row.iloc[2]) if row.iloc[2] else '',
+                    email=str(row.iloc[3]) if row.iloc[3] else '',
+                    phone=str(row.iloc[4]) if row.iloc[4] else '',
+                    mobile_phone=str(row.iloc[5]) if row.iloc[5] else '',
+                    contact_type=str(row.iloc[6]) if row.iloc[6] else 'Consumer',
+                    account_id=str(row.iloc[7]) if row.iloc[7] else '',
+                    job_title=str(row.iloc[8]) if row.iloc[8] else '',
+                    department=str(row.iloc[9]) if row.iloc[9] else '',
+                    address_line1=str(row.iloc[10]) if row.iloc[10] else '',
+                    city=str(row.iloc[11]) if row.iloc[11] else '',
+                    state=str(row.iloc[12]) if row.iloc[12] else '',
+                    zip_code=str(row.iloc[13]) if row.iloc[13] else '',
+                    status=str(row.iloc[14]) if row.iloc[14] else 'Active',
+                    created_timestamp=str(row.iloc[15]) if row.iloc[15] else '',
+                    updated_timestamp=str(row.iloc[16]) if row.iloc[16] else ''
                 )
                 contacts.append(contact)
             
@@ -160,87 +152,6 @@ class ContactIdentityResolutionEngine:
         except Exception as e:
             logger.error(f"Error fetching contacts from Snowflake: {e}")
             return []
-    
-    def calculate_name_similarity(self, first1: str, last1: str, first2: str, last2: str) -> float:
-        """Calculate similarity between two contact names using fuzzy matching"""
-        if not first1 or not last1 or not first2 or not last2:
-            return 0.0
-        
-        # Normalize names
-        first1 = re.sub(r'[^\w\s]', '', first1.lower().strip())
-        last1 = re.sub(r'[^\w\s]', '', last1.lower().strip())
-        first2 = re.sub(r'[^\w\s]', '', first2.lower().strip())
-        last2 = re.sub(r'[^\w\s]', '', last2.lower().strip())
-        
-        # Exact match
-        if first1 == first2 and last1 == last2:
-            return 1.0
-        
-        # Handle abbreviations (J. vs John)
-        if (len(first1) == 1 and first2.startswith(first1)) or (len(first2) == 1 and first1.startswith(first2)):
-            first_similarity = 0.9
-        else:
-            first_similarity = 1.0 if first1 == first2 else 0.0
-        
-        if (len(last1) == 1 and last2.startswith(last1)) or (len(last2) == 1 and last1.startswith(last2)):
-            last_similarity = 0.9
-        else:
-            last_similarity = 1.0 if last1 == last2 else 0.0
-        
-        # Weight first and last names equally
-        return (first_similarity + last_similarity) / 2
-    
-    def calculate_email_similarity(self, email1: str, email2: str) -> float:
-        """Calculate similarity between two email addresses"""
-        if not email1 or not email2:
-            return 0.0
-        
-        # Exact match
-        if email1.lower() == email2.lower():
-            return 1.0
-        
-        # Extract local and domain parts
-        try:
-            local1, domain1 = email1.lower().split('@')
-            local2, domain2 = email2.lower().split('@')
-        except ValueError:
-            return 0.0
-        
-        # Domain match
-        domain_match = 1.0 if domain1 == domain2 else 0.0
-        
-        # Local part similarity
-        local_similarity = 1.0 if local1 == local2 else 0.0
-        
-        # Weighted score (domain more important)
-        return (domain_match * 0.6) + (local_similarity * 0.4)
-    
-    def calculate_phone_similarity(self, phone1: str, phone2: str) -> float:
-        """Calculate similarity between two phone numbers"""
-        if not phone1 or not phone2:
-            return 0.0
-        
-        # Normalize phone numbers
-        phone1 = re.sub(r'[^\d]', '', phone1)
-        phone2 = re.sub(r'[^\d]', '', phone2)
-        
-        # Exact match
-        if phone1 == phone2:
-            return 1.0
-        
-        # Check if one is contained in the other (extension vs no extension)
-        if phone1 in phone2 or phone2 in phone1:
-            return 0.9
-        
-        # Calculate digit similarity
-        if len(phone1) >= 10 and len(phone2) >= 10:
-            # Compare last 10 digits
-            last1 = phone1[-10:]
-            last2 = phone2[-10:]
-            if last1 == last2:
-                return 0.95
-        
-        return 0.0
     
     def apply_business_rules(self, contact: ContactRecord, matches: List[Tuple[ContactRecord, float]]) -> Dict:
         """Apply business rules based on contact type"""
@@ -299,7 +210,7 @@ class ContactIdentityResolutionEngine:
             score += 1.0
         total_fields += 1
         
-        if contact.phone and len(re.sub(r'[^\d]', '', contact.phone)) >= 10:
+        if contact.phone and len(contact.phone.replace('(', '').replace(')', '').replace('-', '').replace(' ', '')) >= 10:
             score += 1.0
         total_fields += 1
         
@@ -315,8 +226,8 @@ class ContactIdentityResolutionEngine:
         return score / total_fields if total_fields > 0 else 0.0
     
     def resolve_contact_identity(self, contacts: List[ContactRecord]) -> List[ContactMatchResult]:
-        """Main contact identity resolution method"""
-        logger.info("Starting contact identity resolution process...")
+        """Main contact identity resolution method using Levenshtein distance"""
+        logger.info("Starting contact identity resolution process with Levenshtein distance...")
         
         results = []
         processed_records = set()
@@ -328,42 +239,32 @@ class ContactIdentityResolutionEngine:
             matches = []
             duplicate_ids = []
             
-            # Find potential matches
+            # Find potential matches using new specific identity resolution rules
             for j, candidate_contact in enumerate(contacts):
                 if i == j or candidate_contact.contact_id in processed_records:
                     continue
                 
-                # Calculate match scores
-                name_score = self.calculate_name_similarity(
-                    primary_contact.first_name, primary_contact.last_name,
-                    candidate_contact.first_name, candidate_contact.last_name
+                # Use new specific identity resolution rules
+                identity_score = self.fuzzy_matcher.calculate_contact_identity_score(
+                    {
+                        'FIRST_NAME': primary_contact.first_name,
+                        'LAST_NAME': primary_contact.last_name,
+                        'EMAIL': primary_contact.email,
+                        'PHONE': primary_contact.phone
+                    },
+                    {
+                        'FIRST_NAME': candidate_contact.first_name,
+                        'LAST_NAME': candidate_contact.last_name,
+                        'EMAIL': candidate_contact.email,
+                        'PHONE': candidate_contact.phone
+                    }
                 )
                 
-                email_score = self.calculate_email_similarity(
-                    primary_contact.email, candidate_contact.email
-                )
-                
-                phone_score = self.calculate_phone_similarity(
-                    primary_contact.phone, candidate_contact.phone
-                )
-                
-                mobile_score = self.calculate_phone_similarity(
-                    primary_contact.mobile_phone, candidate_contact.mobile_phone
-                )
-                
-                # Calculate composite score with weighted average
-                scores = [
-                    (name_score, 0.35),     # Name is most important
-                    (email_score, 0.25),    # Email is second most important
-                    (phone_score, 0.20),    # Phone is third
-                    (mobile_score, 0.20)    # Mobile phone is fourth
-                ]
-                
-                weighted_score = sum(score * weight for score, weight in scores if score > 0)
-                
-                # Apply business rules - Lower threshold for testing
-                if weighted_score >= 0.3:  # Lower threshold to detect more potential matches
-                    matches.append((candidate_contact, weighted_score))
+                # Apply business rules - Only exact matches (score = 1.0) for new rules
+                if identity_score >= 1.0:  # Exact match based on new rules
+                    matches.append((candidate_contact, identity_score))
+                    logger.debug(f"Identity match found: {primary_contact.first_name} {primary_contact.last_name} vs {candidate_contact.first_name} {candidate_contact.last_name}, Score: {identity_score:.3f}")
+                    logger.debug(f"  Rules: First Name fuzzy={self.fuzzy_matcher.calculate_first_name_similarity(primary_contact.first_name, candidate_contact.first_name):.3f}, Last Name exact={1.0 if primary_contact.last_name.lower() == candidate_contact.last_name.lower() else 0.0}, Email exact={1.0 if primary_contact.email.lower() == candidate_contact.email.lower() else 0.0}, Phone digits={1.0 if ''.join(filter(str.isdigit, primary_contact.phone)) == ''.join(filter(str.isdigit, candidate_contact.phone)) else 0.0}")
             
             # Sort matches by score
             matches.sort(key=lambda x: x[1], reverse=True)
@@ -416,6 +317,9 @@ class ContactIdentityResolutionEngine:
                 total_contacts = len(all_contacts)
                 linked_accounts = list(set([c.account_id for c in all_contacts if c.account_id]))
                 
+                # Generate unified GUID for this deduplicated group
+                unified_guid = str(uuid.uuid4())
+                
                 result = ContactMatchResult(
                     primary_contact_id=primary_contact.contact_id,
                     duplicate_contact_ids=duplicate_ids,
@@ -426,7 +330,8 @@ class ContactIdentityResolutionEngine:
                     data_quality_score=business_rules_result['data_quality_score'],
                     recommended_action=business_rules_result['recommended_action'],
                     total_contacts_in_group=total_contacts,
-                    linked_accounts=linked_accounts
+                    linked_accounts=linked_accounts,
+                    unified_guid=unified_guid
                 )
                 
                 results.append(result)
@@ -469,6 +374,7 @@ class ContactIdentityResolutionEngine:
                 'STATUS': primary_contact.status,
                 'MATCH_TYPE': 'PRIMARY',
                 'DUPLICATE_GROUP_ID': f"GROUP_{primary_contact.contact_id}",
+                'UNIFIED_GUID': result.unified_guid,
                 'CONFIDENCE_SCORE': result.confidence_score,
                 'MATCH_REASON': result.match_reason,
                 'BUSINESS_RULES_APPLIED': '; '.join(result.business_rules_applied),
@@ -499,6 +405,7 @@ class ContactIdentityResolutionEngine:
                     'STATUS': dup_contact.status,
                     'MATCH_TYPE': 'DUPLICATE',
                     'DUPLICATE_GROUP_ID': f"GROUP_{primary_contact.contact_id}",
+                    'UNIFIED_GUID': result.unified_guid,
                     'CONFIDENCE_SCORE': result.confidence_score,
                     'MATCH_REASON': result.match_reason,
                     'BUSINESS_RULES_APPLIED': '; '.join(result.business_rules_applied),
@@ -518,8 +425,8 @@ class ContactIdentityResolutionEngine:
 
 def main():
     """Main execution function for CONTACTS identity resolution"""
-    logger.info("🚀 Starting CONTACTS Identity Resolution Job")
-    logger.info("This demonstrates the value of Salesforce Data Cloud + Agent Force using real Snowflake data")
+    logger.info("🚀 Starting CONTACTS Identity Resolution Job with Levenshtein Distance")
+    logger.info("This demonstrates advanced fuzzy matching using proper Levenshtein distance algorithms")
     
     try:
         # Initialize Snowflake connection
@@ -544,7 +451,7 @@ def main():
         
         # Print summary
         logger.info("\n" + "="*80)
-        logger.info("📊 CONTACTS IDENTITY RESOLUTION SUMMARY")
+        logger.info("📊 CONTACTS IDENTITY RESOLUTION SUMMARY (Levenshtein Distance)")
         logger.info("="*80)
         
         total_records = len(contacts)

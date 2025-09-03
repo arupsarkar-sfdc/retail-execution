@@ -38,18 +38,24 @@
 
 This repository includes **two separate identity resolution jobs** that demonstrate the capabilities you'd get with Salesforce Data Cloud + Agent Force using your **actual Snowflake data**:
 
-### **1. ACCOUNTS Identity Resolution Job** (`identity_resolution_accounts.py`)
-- **Purpose**: Resolve duplicate accounts across multiple source systems
+### **1. ACCOUNTS Identity Resolution Job** (`src/pmi_retail/scripts/identity_resolution/accounts_resolution.py`)
+- **Purpose**: Resolve duplicate accounts using exact ENTERPRISE_ID matching
 - **Data Source**: Your actual `ACCOUNTS` table in Snowflake
-- **Matching Fields**: Account name, phone, website, address, industry
-- **Business Rules**: Enterprise (90%), Mid-Market (80%), SMB (75%) confidence thresholds
+- **Matching Criteria**: Exact match on ENTERPRISE_ID field
+- **Algorithms**: Exact string matching for ENTERPRISE_ID field
+- **Business Rules**: All accounts with same ENTERPRISE_ID are considered duplicates
 - **Output**: `ACCOUNTS_identity_resolution_YYYYMMDD_HHMMSS.csv`
 
-### **2. CONTACTS Identity Resolution Job** (`identity_resolution_contacts.py`)
-- **Purpose**: Resolve duplicate contacts across multiple source systems
+### **2. CONTACTS Identity Resolution Job** (`src/pmi_retail/scripts/identity_resolution/contacts_resolution.py`)
+- **Purpose**: Resolve duplicate contacts using composite fuzzy matching rules
 - **Data Source**: Your actual `CONTACTS` table in Snowflake
-- **Matching Fields**: First name, last name, email, phone, mobile phone
-- **Business Rules**: Consumer (85%), Business (80%), Partner (75%) confidence thresholds
+- **Matching Criteria**: 
+  1. Fuzzy First Name match (probability 0.8)
+  2. Exact Last Name match (probability 1.0)
+  3. Case insensitive exact Email match
+  4. All digits of phone number match
+- **Algorithms**: Levenshtein distance, fuzzywuzzy, exact matching
+- **Business Rules**: Composite scoring based on all four criteria
 - **Output**: `CONTACTS_identity_resolution_YYYYMMDD_HHMMSS.csv`
 
 ### **What the Job Does**
@@ -57,14 +63,15 @@ This repository includes **two separate identity resolution jobs** that demonstr
 1. **Generates Sample Data**: Creates realistic customer records with intentional duplicates across multiple source systems (CRM, Marketing, Sales, Support)
 
 2. **Advanced Matching Algorithms**: 
-   - **Exact Matching**: Email, phone, name exact matches
-   - **Fuzzy Matching**: Name similarity, address variations
-   - **Probabilistic Matching**: Combination of multiple indicators
+   - **Accounts**: Exact ENTERPRISE_ID matching for precise account deduplication
+   - **Contacts**: Composite fuzzy matching with Levenshtein distance and exact matching
+   - **FuzzyWuzzy Integration**: Multiple similarity algorithms for first name matching
+   - **Probabilistic Matching**: Weighted combination of four specific criteria
 
 3. **Business Rule Engine**: 
-   - Segment-specific thresholds (Premium: 85%, Standard: 75%, Basic: 70%)
-   - Multiple indicator requirements for high-value customers
-   - Automated decision making with confidence scoring
+   - **Accounts**: All records with identical ENTERPRISE_ID are automatically matched
+   - **Contacts**: Composite scoring based on fuzzy first name (0.8), exact last name (1.0), case-insensitive email, and phone digit matching
+   - **Automated Decision Making**: Clear match/no-match decisions based on criteria fulfillment
 
 4. **Data Quality Assessment**: 
    - Field completeness scoring
@@ -148,48 +155,7 @@ Duplicate Reduction: 84.6%
 
 ---
 
-## 🚀 **Implementation Roadmap**
 
-### **Phase 1: Foundation (Weeks 1-4)**
-- Data source identification and connection
-- Basic identity resolution rules
-- Initial data quality assessment
-
-### **Phase 2: Enhancement (Weeks 5-8)**
-- Advanced matching algorithms
-- Business rule engine implementation
-- Confidence scoring refinement
-
-### **Phase 3: Optimization (Weeks 9-12)**
-- AI/ML model training
-- Performance optimization
-- Business process integration
-
-### **Phase 4: Scale (Weeks 13-16)**
-- Enterprise-wide deployment
-- Advanced analytics and reporting
-- Continuous improvement processes
-
----
-
-## 📊 **ROI Calculation**
-
-### **Cost Savings**
-- **Manual Review Reduction**: 84.6% fewer records requiring human review
-- **Data Quality Improvement**: Reduced data cleanup and maintenance costs
-- **Operational Efficiency**: Faster customer service, reduced duplicate mailings
-
-### **Revenue Impact**
-- **Better Customer Targeting**: Accurate customer profiles improve campaign effectiveness
-- **Reduced Churn**: Complete customer view enables proactive retention
-- **Cross-Sell Success**: Understanding full customer relationship increases sales
-
-### **Risk Mitigation**
-- **Compliance Risk**: Reduced regulatory violations and fines
-- **Fraud Prevention**: Real-time identity verification prevents losses
-- **Data Breach Risk**: Centralized data governance improves security
-
----
 
 ## 🚀 **Salesforce Data Cloud: Accelerating Your Custom Build**
 
@@ -257,23 +223,6 @@ While our custom identity resolution engine demonstrates the concept, **Salesfor
 - **Access Controls**: Role-based access and data masking
 - **Compliance Reporting**: Built-in compliance dashboards and reporting
 
-### **Acceleration Benefits**
-
-#### **Development Time Reduction**
-- **Custom Build**: 6-12 months for enterprise-grade solution
-- **Data Cloud**: 2-4 weeks for full implementation
-- **Time to Value**: 75-80% faster deployment
-
-#### **Maintenance Overhead**
-- **Custom Build**: Dedicated team of 3-5 developers for ongoing maintenance
-- **Data Cloud**: Zero maintenance, automatic updates and improvements
-- **Cost Reduction**: 60-70% lower total cost of ownership
-
-#### **Scalability & Performance**
-- **Custom Build**: Requires custom optimization for each data volume increase
-- **Data Cloud**: Automatic scaling to handle millions of records
-- **Performance**: 10x faster processing with built-in optimizations
-
 ---
 
 ## 🔮 **Future Capabilities**
@@ -307,12 +256,12 @@ While our custom identity resolution engine demonstrates the concept, **Salesfor
 
 ### **Running ACCOUNTS Identity Resolution**
 ```bash
-uv run python identity_resolution_accounts.py
+uv run python src/pmi_retail/scripts/identity_resolution/accounts_resolution.py
 ```
 
 ### **Running CONTACTS Identity Resolution**
 ```bash
-uv run python identity_resolution_contacts.py
+uv run python src/pmi_retail/scripts/identity_resolution/contacts_resolution.py
 ```
 
 ### **Expected Outputs**
@@ -370,218 +319,177 @@ The identity resolution system is built with a **modular, enterprise-ready archi
 
 ### **Core Matching Algorithms**
 
-#### **1. Probabilistic Scoring Engine**
+#### **1. Identity Resolution Scoring Engine**
 
-The system uses a **weighted composite scoring approach** that combines individual field similarities:
+The system uses **criteria-based matching** with different approaches for accounts and contacts:
 
 ```python
-# Weighted scoring formula for ACCOUNTS
-weighted_score = (name_score × 0.40) + (phone_score × 0.25) + 
-                 (email_score × 0.20) + (address_score × 0.10) + 
-                 (city_score × 0.05)
+# ACCOUNTS: Exact ENTERPRISE_ID matching
+def calculate_account_identity_score(self, account1: dict, account2: dict) -> float:
+    if account1['ENTERPRISE_ID'] == account2['ENTERPRISE_ID']:
+        return 1.0  # Perfect match
+    return 0.0  # No match
 
-# Weighted scoring formula for CONTACTS  
-weighted_score = (name_score × 0.40) + (email_score × 0.30) + 
-                 (phone_score × 0.20) + (mobile_score × 0.10)
-```
-
-**Field Weighting Logic:**
-- **Name (40%)**: Most important for identity resolution
-- **Phone/Email (20-30%)**: Strong identifiers but can change
-- **Address (10%)**: Useful but less reliable
-- **City (5%)**: Least important, changes frequently
-
-#### **2. Field-Level Similarity Algorithms**
-
-##### **Name Similarity (Levenshtein + Abbreviation Handling)**
-```python
-def calculate_name_similarity(self, name1: str, name2: str) -> float:
-    # Exact match: 1.0
-    if name1.lower() == name2.lower():
+# CONTACTS: Composite criteria scoring
+def calculate_contact_identity_score(self, contact1: dict, contact2: dict) -> float:
+    # 1. Fuzzy First Name match (probability 0.8)
+    first_name_score = self.calculate_first_name_similarity(contact1['FIRST_NAME'], contact2['FIRST_NAME'])
+    
+    # 2. Exact Last Name match (probability 1.0)
+    last_name_match = contact1['LAST_NAME'].lower() == contact2['LAST_NAME'].lower()
+    
+    # 3. Case insensitive exact Email match
+    email_match = contact1['EMAIL'].lower() == contact2['EMAIL'].lower()
+    
+    # 4. All digits of phone number match
+    phone_digits1 = re.sub(r'[^\d]', '', contact1['PHONE'])
+    phone_digits2 = re.sub(r'[^\d]', '', contact2['PHONE'])
+    phone_match = phone_digits1 == phone_digits2
+    
+    # Composite score: All criteria must be met
+    if first_name_score >= 0.8 and last_name_match and email_match and phone_match:
         return 1.0
-    
-    # Levenshtein distance calculation
-    distance = levenshtein_distance(name1, name2)
-    max_length = max(len(name1), len(name2))
-    similarity = 1 - (distance / max_length)
-    
-    # Business abbreviation normalization
-    abbreviations = {
-        'corp': 'corporation', 'inc': 'incorporated', 
-        'llc': 'limited liability company', 'ltd': 'limited'
-    }
-    
-    # Apply abbreviation mapping
-    normalized_similarity = self._normalize_abbreviations(name1, name2, abbreviations)
-    
-    return max(similarity, normalized_similarity)
-```
-
-**Algorithm Features:**
-- **Levenshtein Distance**: Measures edit distance between strings
-- **Abbreviation Mapping**: Handles business name variations
-- **Case Normalization**: Case-insensitive comparison
-- **Threshold-based Output**: Returns 0.0 for very dissimilar names
-
-##### **Phone Similarity (Hierarchical Matching)**
-```python
-def calculate_phone_similarity(self, phone1: str, phone2: str) -> float:
-    # Normalize to digits only
-    digits1 = re.sub(r'[^\d]', '', phone1)
-    digits2 = re.sub(r'[^\d]', '', phone2)
-    
-    # Exact match: 1.0
-    if digits1 == digits2:
-        return 1.0
-    
-    # Hierarchical partial matching
-    if len(digits1) >= 6 and len(digits2) >= 6:
-        if digits1[:6] == digits2[:6]:  # Area code + prefix
-            return 0.8
-        if digits1[:3] == digits2[:3]:  # Area code only
-            return 0.5
-    
     return 0.0
 ```
 
-**Algorithm Features:**
-- **Digit Normalization**: Removes formatting characters
-- **Hierarchical Scoring**: Area code > Area code + prefix > Full number
-- **Partial Credit**: Graduated scoring based on match depth
+**Matching Criteria Logic:**
+- **Accounts**: Exact ENTERPRISE_ID match (binary: match/no-match)
+- **Contacts**: All four criteria must be satisfied for a match
+  - **Fuzzy First Name**: Levenshtein distance ≥ 80% similarity
+  - **Exact Last Name**: Case-insensitive exact match
+  - **Email**: Case-insensitive exact match
+  - **Phone**: All digits must match exactly
 
-##### **Email Similarity (Component-based Scoring)**
+#### **2. Field-Level Similarity Algorithms**
+
+##### **First Name Similarity (Levenshtein Distance + FuzzyWuzzy)**
 ```python
-def calculate_email_similarity(self, email1: str, email2: str) -> float:
-    try:
-        local1, domain1 = email1.lower().split('@')
-        local2, domain2 = email2.lower().split('@')
-        
-        # Domain match (more important - 60%)
-        domain_match = 1.0 if domain1 == domain2 else 0.0
-        
-        # Local part similarity (40%)
-        local_similarity = 1.0 if local1 == local2 else 0.0
-        
-        # Weighted combination
-        return (domain_match * 0.6) + (local_similarity * 0.4)
-    except ValueError:
-        return 0.0
-```
-
-**Algorithm Features:**
-- **Component Separation**: Local vs domain part analysis
-- **Domain Priority**: Company domain matches weighted higher (60%)
-- **Local Part Matching**: Username variations treated as different
-- **Error Handling**: Graceful handling of invalid email formats
-
-##### **Address Similarity (Pattern-based Matching)**
-```python
-def calculate_address_similarity(self, addr1: str, addr2: str) -> float:
-    # Normalize addresses
-    addr1 = re.sub(r'[^\w\s]', '', addr1.lower().strip())
-    addr2 = re.sub(r'[^\w\s]', '', addr2.lower().strip())
+def calculate_first_name_similarity(self, first1: str, first2: str) -> float:
+    # Normalize first names
+    norm_first1 = self.normalize_string(first1)
+    norm_first2 = self.normalize_string(first2)
     
-    # Exact match: 1.0
-    if addr1 == addr2:
+    # Exact match after normalization
+    if norm_first1 == norm_first2:
         return 1.0
     
-    # Street type variations
-    variations = [
-        ('street', 'st'), ('avenue', 'ave'), ('boulevard', 'blvd'),
-        ('drive', 'dr'), ('road', 'rd'), ('lane', 'ln')
-    ]
+    # Check for common name variations (John/Jon, Michael/Mike, etc.)
+    name_variations = {
+        'john': ['jon', 'johnny', 'j'],
+        'michael': ['mike', 'mick', 'm'],
+        'robert': ['bob', 'rob', 'r'],
+        'william': ['bill', 'will', 'w'],
+        'richard': ['rick', 'dick', 'r'],
+        'james': ['jim', 'jimmy', 'j'],
+        'david': ['dave', 'd'],
+        'christopher': ['chris', 'c'],
+        'daniel': ['dan', 'd'],
+        'matthew': ['matt', 'm']
+    }
     
-    # Apply variation normalization
-    normalized_similarity = self._apply_address_variations(addr1, addr2, variations)
+    # Check if names are variations of each other
+    for base_name, variations in name_variations.items():
+        if (norm_first1 == base_name and norm_first2 in variations) or \
+           (norm_first2 == base_name and norm_first1 in variations):
+            return 0.9  # High similarity for known variations
     
-    return normalized_similarity
+    # Calculate Levenshtein distance similarity
+    similarity = fuzz.ratio(norm_first1, norm_first2) / 100.0
+    
+    # Return similarity if it meets the 0.8 threshold
+    return similarity if similarity >= 0.8 else 0.0
 ```
 
 **Algorithm Features:**
-- **Street Type Variations**: Handles abbreviations and full forms
-- **Punctuation Removal**: Standardizes address format
-- **Pattern Matching**: Address similarity with common variations
+- **Levenshtein Distance**: Uses fuzz.ratio for character-level similarity
+- **Name Variation Mapping**: Handles common first name variations (John/Jon, Michael/Mike)
+- **Threshold-based Matching**: Only returns similarity if ≥ 80% match
+- **FuzzyWuzzy Integration**: Leverages python-Levenshtein for performance
+- **Normalization**: Handles case and whitespace variations
+
+##### **Phone Digit Matching (Exact Match)**
+```python
+def calculate_phone_match(self, phone1: str, phone2: str) -> bool:
+    # Extract only digits from both phone numbers
+    digits1 = re.sub(r'[^\d]', '', phone1)
+    digits2 = re.sub(r'[^\d]', '', phone2)
+    
+    # Exact match of all digits
+    return digits1 == digits2
+```
+
+**Algorithm Features:**
+- **Exact Digit Matching**: All digits must match exactly
+- **Format Agnostic**: Ignores formatting differences (spaces, dashes, parentheses)
+- **Binary Result**: Returns True/False for match/no-match
+- **Simple Logic**: No fuzzy matching - either all digits match or they don't
+
+##### **Email Matching (Case-Insensitive Exact Match)**
+```python
+def calculate_email_match(self, email1: str, email2: str) -> bool:
+    # Case-insensitive exact match
+    return email1.lower() == email2.lower()
+```
+
+**Algorithm Features:**
+- **Case-Insensitive**: Converts both emails to lowercase before comparison
+- **Exact Match**: No fuzzy matching - emails must be identical
+- **Binary Result**: Returns True/False for match/no-match
+- **Simple Logic**: Direct string comparison after normalization
 
 ### **Business Rules Engine**
 
-#### **Dynamic Threshold Application**
-
-The system automatically determines appropriate business rules based on record characteristics:
+#### **Account Identity Resolution Rules**
 
 ```python
-def determine_segment(self, account: AccountRecord) -> str:
-    if account.annual_revenue >= 100000000:  # $100M+
-        return 'Enterprise'
-    elif account.annual_revenue >= 10000000:  # $10M+
-        return 'Mid-Market'
-    else:
-        return 'SMB'
-
-def determine_contact_type(self, contact: ContactRecord) -> str:
-    if contact.contact_type:
-        return contact.contact_type
-    elif contact.job_title and 'manager' in contact.job_title.lower():
-        return 'Business'
-    else:
-        return 'Consumer'
+# ACCOUNTS: Exact ENTERPRISE_ID matching
+def resolve_account_identity(self, account1: dict, account2: dict) -> bool:
+    # All accounts with the same ENTERPRISE_ID are considered duplicates
+    return account1['ENTERPRISE_ID'] == account2['ENTERPRISE_ID']
 ```
 
-#### **Configurable Business Rules**
+#### **Contact Identity Resolution Rules**
 
 ```python
-# ACCOUNTS Business Rules
-business_rules = {
-    'Enterprise': {
-        'min_confidence': 0.30,           # Lowered for testing
-        'require_multiple_indicators': False,
-        'manual_review_threshold': 0.50
-    },
-    'Mid-Market': {
-        'min_confidence': 0.25,
-        'require_multiple_indicators': False,
-        'manual_review_threshold': 0.40
-    },
-    'SMB': {
-        'min_confidence': 0.20,
-        'require_multiple_indicators': False,
-        'manual_review_threshold': 0.30
-    }
-}
-
-# CONTACTS Business Rules
-business_rules = {
-    'Consumer': {
-        'min_confidence': 0.20,
-        'require_multiple_indicators': False,
-        'manual_review_threshold': 0.30
-    },
-    'Business': {
-        'min_confidence': 0.25,
-        'require_multiple_indicators': False,
-        'manual_review_threshold': 0.35
-    },
-    'Partner': {
-        'min_confidence': 0.20,
-        'require_multiple_indicators': False,
-        'manual_review_threshold': 0.30
-    }
-}
+# CONTACTS: Composite criteria matching
+def resolve_contact_identity(self, contact1: dict, contact2: dict) -> bool:
+    # All four criteria must be satisfied for a match:
+    
+    # 1. Fuzzy First Name match (probability 0.8)
+    first_name_score = self.calculate_first_name_similarity(
+        contact1['FIRST_NAME'], contact2['FIRST_NAME']
+    )
+    if first_name_score < 0.8:
+        return False
+    
+    # 2. Exact Last Name match (probability 1.0)
+    if contact1['LAST_NAME'].lower() != contact2['LAST_NAME'].lower():
+        return False
+    
+    # 3. Case insensitive exact Email match
+    if contact1['EMAIL'].lower() != contact2['EMAIL'].lower():
+        return False
+    
+    # 4. All digits of phone number match
+    phone_digits1 = re.sub(r'[^\d]', '', contact1['PHONE'])
+    phone_digits2 = re.sub(r'[^\d]', '', contact2['PHONE'])
+    if phone_digits1 != phone_digits2:
+        return False
+    
+    # All criteria met - this is a match
+    return True
 ```
 
 #### **Action Recommendation Logic**
 
 ```python
-def determine_recommended_action(self, confidence: float, 
-                               business_rules: Dict, 
-                               data_quality_score: float) -> str:
+def determine_recommended_action(self, is_match: bool, data_quality_score: float) -> str:
     if data_quality_score < 0.6:
         return "Data Quality Review Required"
-    elif confidence >= business_rules['manual_review_threshold']:
-        return "High Confidence - Auto-Merge"
-    elif confidence >= business_rules['min_confidence']:
-        return "Manual Review Required"
+    elif is_match:
+        return "Match - Auto-Merge"
     else:
-        return "No Action - Below Threshold"
+        return "No Match - Keep Separate"
 ```
 
 ### **Data Quality Assessment**

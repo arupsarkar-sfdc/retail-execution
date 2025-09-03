@@ -155,6 +155,9 @@ class RetailDataGenerator:
             chain_name = self.chain_names[i % len(self.chain_names)]
             city, state = random.choice(self.cities)
             
+            # Generate ENTERPRISE_ID for identity resolution testing
+            enterprise_id = f'ENT{str(uuid.uuid4())[:8].upper()}'
+            
             account = {
                 'ACCOUNT_ID': f'ACC{str(account_id_counter).zfill(4)}',
                 'ACCOUNT_NAME': f'{chain_name} Corp',
@@ -172,7 +175,8 @@ class RetailDataGenerator:
                 'STATUS': 'Active',
                 'HIERARCHY_LEVEL': 1,
                 'ANNUAL_REVENUE': random.randint(50000000, 500000000),  # Large chains
-                'EMPLOYEE_COUNT': random.randint(1000, 50000)
+                'EMPLOYEE_COUNT': random.randint(1000, 50000),
+                'ENTERPRISE_ID': enterprise_id
             }
             accounts.append(account)
             account_id_counter += 1
@@ -187,6 +191,9 @@ class RetailDataGenerator:
             
             city, state = random.choice(self.cities)
             region_name = random.choice(['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West Coast', 'Central'])
+            
+            # Generate ENTERPRISE_ID for identity resolution testing
+            enterprise_id = f'ENT{str(uuid.uuid4())[:8].upper()}'
             
             account = {
                 'ACCOUNT_ID': f'ACC{str(account_id_counter).zfill(4)}',
@@ -205,7 +212,8 @@ class RetailDataGenerator:
                 'STATUS': 'Active',
                 'HIERARCHY_LEVEL': 2,
                 'ANNUAL_REVENUE': random.randint(5000000, 50000000),  # Regional revenue
-                'EMPLOYEE_COUNT': random.randint(100, 2000)
+                'EMPLOYEE_COUNT': random.randint(100, 2000),
+                'ENTERPRISE_ID': enterprise_id
             }
             accounts.append(account)
             account_id_counter += 1
@@ -246,6 +254,9 @@ class RetailDataGenerator:
             city, state = random.choice(self.cities)
             store_location = random.choice(self.store_names)
             
+            # Generate ENTERPRISE_ID for identity resolution testing
+            enterprise_id = f'ENT{str(uuid.uuid4())[:8].upper()}'
+            
             account = {
                 'ACCOUNT_ID': f'ACC{str(account_id_counter).zfill(4)}',
                 'ACCOUNT_NAME': f'{base_name} {store_location}' if parent_id else f'{store_location} Market',
@@ -263,10 +274,16 @@ class RetailDataGenerator:
                 'STATUS': 'Active',
                 'HIERARCHY_LEVEL': hierarchy_level,
                 'ANNUAL_REVENUE': random.randint(500000, 10000000) if account_type != 'Independent' else random.randint(100000, 2000000),
-                'EMPLOYEE_COUNT': random.randint(5, 200) if account_type != 'Independent' else random.randint(3, 50)
+                'EMPLOYEE_COUNT': random.randint(5, 200) if account_type != 'Independent' else random.randint(3, 50),
+                'ENTERPRISE_ID': enterprise_id
             }
             accounts.append(account)
             account_id_counter += 1
+        
+        # Add intentional duplicates for identity resolution testing
+        logger.info("Creating intentional duplicates for identity resolution testing...")
+        duplicate_accounts = self._create_duplicate_accounts(accounts, account_id_counter)
+        accounts.extend(duplicate_accounts)
         
         df = pd.DataFrame(accounts)
         
@@ -279,6 +296,31 @@ class RetailDataGenerator:
         logger.info(f"Account hierarchy created: {hierarchy_stats}")
         
         return df
+    
+    def _create_duplicate_accounts(self, accounts: List[Dict], start_id_counter: int) -> List[Dict]:
+        """Create intentional duplicate accounts for identity resolution testing"""
+        duplicates = []
+        account_id_counter = start_id_counter
+        
+        # Create 5-10 duplicate pairs for testing
+        num_duplicates = random.randint(5, 10)
+        selected_accounts = random.sample(accounts, num_duplicates)
+        
+        for original_account in selected_accounts:
+            # Create duplicate with same ENTERPRISE_ID but different ACCOUNT_ID
+            duplicate = original_account.copy()
+            duplicate['ACCOUNT_ID'] = f'ACC{str(account_id_counter).zfill(4)}'
+            duplicate['ACCOUNT_NAME'] = f"{original_account['ACCOUNT_NAME']} (Duplicate)"
+            duplicate['EMAIL'] = f"duplicate{account_id_counter}@{original_account['EMAIL'].split('@')[1]}"
+            duplicate['PHONE'] = f"({random.randint(200, 999)}) {random.randint(200, 999)}-{random.randint(1000, 9999)}"
+            # Keep same ENTERPRISE_ID for exact matching
+            # duplicate['ENTERPRISE_ID'] = original_account['ENTERPRISE_ID']  # Same ENTERPRISE_ID
+            
+            duplicates.append(duplicate)
+            account_id_counter += 1
+        
+        logger.info(f"Created {len(duplicates)} duplicate accounts for identity resolution testing")
+        return duplicates
     
     def generate_products(self) -> pd.DataFrame:
         """Generate diverse retail products"""
@@ -629,6 +671,11 @@ class RetailDataGenerator:
             contacts.append(contact)
             contact_id_counter += 1
         
+        # Add intentional duplicates for identity resolution testing
+        logger.info("Creating intentional duplicate contacts for identity resolution testing...")
+        duplicate_contacts = self._create_duplicate_contacts(contacts, contact_id_counter)
+        contacts.extend(duplicate_contacts)
+        
         df = pd.DataFrame(contacts)
         
         # Convert date columns to proper SQL date strings
@@ -645,6 +692,104 @@ class RetailDataGenerator:
         logger.info(f"Generated {len(df):,} contacts: {linked_count:,} linked to accounts, {independent_count:,} independent")
         
         return df
+    
+    def _create_duplicate_contacts(self, contacts: List[Dict], start_id_counter: int) -> List[Dict]:
+        """Create intentional duplicate contacts for identity resolution testing"""
+        duplicates = []
+        contact_id_counter = start_id_counter
+        
+        # Create 8-15 duplicate pairs for testing
+        num_duplicates = random.randint(8, 15)
+        selected_contacts = random.sample(contacts, num_duplicates)
+        
+        for original_contact in selected_contacts:
+            # Create duplicate with matching identity resolution rules
+            duplicate = original_contact.copy()
+            duplicate['CONTACT_ID'] = f'CON{str(contact_id_counter).zfill(4)}'
+            
+            # Rule 1: Fuzzy First Name match (probability 0.8) - create similar but not exact
+            original_first = original_contact['FIRST_NAME']
+            if random.random() < 0.8:  # 80% chance for fuzzy match
+                # Create fuzzy variations
+                fuzzy_variations = {
+                    'John': ['Jon', 'Johnny', 'Johnathan'],
+                    'Michael': ['Mike', 'Micheal', 'Mick'],
+                    'David': ['Dave', 'Davey', 'Davy'],
+                    'Robert': ['Rob', 'Bob', 'Bobby'],
+                    'James': ['Jim', 'Jimmy', 'Jamie'],
+                    'William': ['Bill', 'Will', 'Billy'],
+                    'Richard': ['Rick', 'Rich', 'Dick'],
+                    'Charles': ['Chuck', 'Charlie', 'Charley'],
+                    'Thomas': ['Tom', 'Tommy', 'Thom'],
+                    'Christopher': ['Chris', 'Cristopher', 'Kristopher'],
+                    'Daniel': ['Dan', 'Danny', 'Dane'],
+                    'Matthew': ['Matt', 'Matty', 'Mathew'],
+                    'Anthony': ['Tony', 'Antony', 'Anton'],
+                    'Mark': ['Marc', 'Marcus', 'Marco'],
+                    'Donald': ['Don', 'Donny', 'Donal'],
+                    'Steven': ['Steve', 'Stevie', 'Stephen'],
+                    'Paul': ['Paulo', 'Pablo', 'Paolo'],
+                    'Andrew': ['Andy', 'Andre', 'Drew'],
+                    'Joshua': ['Josh', 'Josiah', 'Jose'],
+                    'Kenneth': ['Ken', 'Kenny', 'Kent']
+                }
+                
+                if original_first in fuzzy_variations:
+                    duplicate['FIRST_NAME'] = random.choice(fuzzy_variations[original_first])
+                else:
+                    # Create simple fuzzy variations
+                    if len(original_first) > 3:
+                        # Add/remove one character
+                        if random.random() < 0.5:
+                            duplicate['FIRST_NAME'] = original_first[:-1]  # Remove last char
+                        else:
+                            duplicate['FIRST_NAME'] = original_first + 'y'  # Add 'y'
+                    else:
+                        duplicate['FIRST_NAME'] = original_first  # Keep same for short names
+            
+            # Rule 2: Exact Last Name match (probability 1.0) - keep exact same
+            # duplicate['LAST_NAME'] = original_contact['LAST_NAME']  # Same last name
+            
+            # Rule 3: Case insensitive exact Email match - create case variation
+            original_email = original_contact['EMAIL']
+            if random.random() < 0.7:  # 70% chance for case variation
+                # Create case-insensitive variation
+                email_parts = original_email.split('@')
+                if len(email_parts) == 2:
+                    duplicate['EMAIL'] = email_parts[0].upper() + '@' + email_parts[1].lower()
+                else:
+                    duplicate['EMAIL'] = original_email.upper()
+            else:
+                duplicate['EMAIL'] = original_email  # Keep exact same
+            
+            # Rule 4: All digits of phone number match - create format variation
+            original_phone = original_contact['PHONE']
+            if original_phone and random.random() < 0.6:  # 60% chance for format variation
+                # Extract digits and reformat
+                digits = ''.join(filter(str.isdigit, original_phone))
+                if len(digits) == 10:
+                    # Different format but same digits
+                    formats = [
+                        f"({digits[:3]}) {digits[3:6]}-{digits[6:]}",
+                        f"{digits[:3]}-{digits[3:6]}-{digits[6:]}",
+                        f"{digits[:3]}.{digits[3:6]}.{digits[6:]}",
+                        f"{digits[:3]} {digits[3:6]} {digits[6:]}"
+                    ]
+                    duplicate['PHONE'] = random.choice(formats)
+                else:
+                    duplicate['PHONE'] = original_phone
+            else:
+                duplicate['PHONE'] = original_phone  # Keep exact same
+            
+            # Vary other fields slightly
+            duplicate['MOBILE_PHONE'] = f"({random.randint(200, 999)}) {random.randint(200, 999)}-{random.randint(1000, 9999)}"
+            duplicate['ADDRESS_LINE1'] = f"{random.randint(100, 9999)} {random.choice(['Main', 'Oak', 'Pine', 'Elm', 'First'])} St"
+            
+            duplicates.append(duplicate)
+            contact_id_counter += 1
+        
+        logger.info(f"Created {len(duplicates)} duplicate contacts for identity resolution testing")
+        return duplicates
     
     def generate_notes(self, accounts_df: pd.DataFrame, contacts_df: pd.DataFrame) -> pd.DataFrame:
         """Generate realistic notes with time-bound fields"""
@@ -1060,3 +1205,49 @@ class RetailDataGenerator:
                 
         except Exception as e:
             logger.error(f"Failed to print data summary: {str(e)}")
+
+
+def main():
+    """Main function to generate and load data to Snowflake"""
+    print("🚀 PMI Workshop - Data Generation Script")
+    print("="*50)
+    
+    try:
+        # Create Snowflake manager
+        sf_manager = SnowflakeManager()
+        
+        # Connect to Snowflake
+        if not sf_manager.connect():
+            print("❌ Failed to connect to Snowflake. Check your .env configuration.")
+            return False
+        
+        print(f"✅ Connected to Snowflake: {settings.snowflake_database}.{settings.snowflake_schema}")
+        
+        # Create data generator
+        data_generator = RetailDataGenerator(sf_manager, scale="small")
+        
+        # Generate and load data
+        success = data_generator.load_data_to_snowflake()
+        
+        if success:
+            print("\n🎉 Data generation and loading completed successfully!")
+            print("\nNext steps:")
+            print("1. Run identity resolution scripts to test new rules")
+            print("2. Check the generated data in Snowflake")
+            return True
+        else:
+            print("\n❌ Data generation failed. Check logs for details.")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Data generation script failed: {str(e)}")
+        print(f"\n❌ Script failed: {str(e)}")
+        return False
+        
+    finally:
+        if 'sf_manager' in locals():
+            sf_manager.close_connection()
+
+
+if __name__ == "__main__":
+    main()

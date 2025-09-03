@@ -40,6 +40,9 @@ dependencies = [
     "httpx>=0.25.0",
     "faiss-cpu>=1.12.0",
     "pypdf>=6.0.0",
+    # Fuzzy matching and string similarity
+    "fuzzywuzzy>=0.18.0",
+    "python-Levenshtein>=0.21.0",
 ]
 
 [project.optional-dependencies]
