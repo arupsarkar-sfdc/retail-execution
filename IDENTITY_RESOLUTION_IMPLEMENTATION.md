@@ -68,182 +68,100 @@ tests/
 
 ## 🔧 Implementation Steps
 
-### Step 1: Create Identity Resolution Package Structure
+### Step 1: Implement Core Identity Resolution Logic
 **Status**: ✅ Completed
-**Files Created**:
-- `src/pmi_retail/scripts/identity_resolution/__init__.py` ✅
-- `src/pmi_retail/scripts/identity_resolution/accounts_resolution.py` ✅
-- `src/pmi_retail/scripts/identity_resolution/contacts_resolution.py` ✅
-- `src/pmi_retail/scripts/identity_resolution/database_cleaner.py` ✅
-- `src/pmi_retail/scripts/identity_resolution/utils/fuzzy_matching.py` ✅
+**Purpose**: Core algorithms for identifying and grouping duplicate records
+**Key Logic Implemented**:
+- **Accounts Resolution**: ENTERPRISE_ID exact matching algorithm ✅
+- **Contacts Resolution**: Fuzzy matching with weighted scoring ✅
+- **Group Creation**: Unified GUID generation for identity groups ✅
+- **Similarity Thresholds**: Configurable matching confidence levels ✅
 
 ### Step 2: Implement Fuzzy Matching Engine
 **Status**: ✅ Completed
-**Purpose**: Advanced fuzzy matching using Levenshtein distance and multiple algorithms
-**Key Methods Implemented**:
-- `calculate_contact_identity_score(contact1, contact2) -> float` ✅
-- `calculate_first_name_similarity(first_name1, first_name2) -> float` ✅
-- `calculate_account_identity_score(account1, account2) -> float` ✅
-- `_normalize_phone_number(phone) -> str` ✅
-- `_normalize_email(email) -> str` ✅
+**Purpose**: Advanced fuzzy matching using multiple algorithms and weighted scoring
+**Key Algorithms Implemented**:
+- `calculate_contact_identity_score()` - Weighted composite scoring ✅
+- `calculate_first_name_similarity()` - Multi-algorithm fuzzy matching ✅
+- **Rule 1**: Fuzzy First Name match (weight: 0.8) ✅
+- **Rule 2**: Exact Last Name match (weight: 1.0) ✅
+- **Rule 3**: Case insensitive exact Email match (weight: 1.0) ✅
+- **Rule 4**: All digits phone number match (weight: 1.0) ✅
 
-### Step 3: Implement Accounts Identity Resolution
+### Step 3: Implement Identity Grouping Logic
 **Status**: ✅ Completed
-**Purpose**: Resolve duplicate accounts using ENTERPRISE_ID matching
-**Key Methods Implemented**:
-- `resolve_account_identity() -> List[AccountGroup]` ✅
-- `fetch_accounts_from_snowflake() -> List[AccountRecord]` ✅
-- `generate_unified_guid() -> str` ✅
-- `export_results_to_csv(groups, filename) -> None` ✅
+**Purpose**: Group matching records and create unified identity groups
+**Key Logic Implemented**:
+- **Account Grouping**: Group by ENTERPRISE_ID with exact matching ✅
+- **Contact Grouping**: Group by similarity score with threshold filtering ✅
+- **Group Metadata**: Comprehensive identity resolution metadata ✅
+- **Duplicate Detection**: Only create groups for actual duplicates ✅
 
-### Step 4: Implement Contacts Identity Resolution
+### Step 4: Implement Matching Algorithms
 **Status**: ✅ Completed
-**Purpose**: Resolve duplicate contacts using fuzzy matching rules
-**Key Methods Implemented**:
-- `resolve_contact_identity() -> List[ContactGroup]` ✅
-- `fetch_contacts_from_snowflake() -> List[ContactRecord]` ✅
-- `generate_unified_guid() -> str` ✅
-- `export_results_to_csv(groups, filename) -> None` ✅
+**Purpose**: Core matching algorithms for different data types
+**Key Algorithms Implemented**:
+- **Exact Matching**: ENTERPRISE_ID for accounts ✅
+- **Fuzzy Matching**: Levenshtein distance for names ✅
+- **Token Matching**: Multiple fuzzy algorithms (ratio, partial, token_sort, token_set) ✅
+- **Weighted Scoring**: Composite scoring with configurable weights ✅
 
-### Step 5: Implement Database Management
+### Step 5: Implement Identity Resolution Rules Engine
 **Status**: ✅ Completed
-**Purpose**: Clean existing data and manage table schemas
-**Key Methods Implemented**:
-- `clean_database_tables() -> None` ✅
-- `delete_table_data(table_name) -> None` ✅
-- `verify_table_cleanup(table_name) -> bool` ✅
+**Purpose**: Business rules for identity resolution decisions
+**Key Rules Implemented**:
+- **Account Rules**: ENTERPRISE_ID exact match only ✅
+- **Contact Rules**: Multi-field fuzzy matching with thresholds ✅
+- **Confidence Scoring**: Match confidence calculation and validation ✅
+- **Threshold Management**: Configurable similarity thresholds (0.95 for contacts) ✅
 
-### Step 6: Implement Test Data Generation
+### Step 6: Implement Group Creation and Metadata Logic
 **Status**: ✅ Completed
-**Purpose**: Generate test data with intentional duplicates for validation
-**Key Methods Implemented**:
-- `generate_test_data() -> None` ✅
-- `_create_duplicate_accounts() -> List[Dict]` ✅
-- `_create_duplicate_contacts() -> List[Dict]` ✅
-- `_generate_enterprise_id() -> str` ✅
-
-### Step 7: Integrate Modern LLM Text Formatting
-**Status**: ✅ Completed
-**Purpose**: Fix concatenated text issues in AI-generated content
-**Key Methods Implemented**:
-- `ModernTextFormatter.format_with_llm(text) -> str` ✅
-- `_needs_formatting(text) -> bool` ✅
-- `_detect_concatenation_patterns(text) -> bool` ✅
+**Purpose**: Create identity groups with comprehensive metadata
+**Key Logic Implemented**:
+- **Unified GUID Generation**: Unique identifiers for identity groups ✅
+- **Group Metadata**: Resolution timestamps, algorithms, confidence scores ✅
+- **Record Tracking**: Track all records in each identity group ✅
+- **Resolution History**: Maintain resolution algorithm and version info ✅
 
 ---
 
 ## 📊 Technical Workflow & Data Flow
 
-### **Complete Identity Resolution Workflow**
+### **Identity Resolution Logic Workflow**
 
 ```mermaid
 graph TD
-    A[User Initiates Identity Resolution] --> B[Database Cleaner: clean_database_tables]
-    B --> C[Delete Existing ACCOUNTS Data]
-    B --> D[Delete Existing CONTACTS Data]
-    B --> E[Delete Existing NOTES Data]
+    A[Raw Account/Contact Records] --> B[Identity Resolution Engine]
     
-    C --> F[Verify Table Cleanup]
-    D --> F
-    E --> F
+    B --> C[Accounts Resolution Logic]
+    B --> D[Contacts Resolution Logic]
     
-    F --> G[Test Data Generator: generate_test_data]
-    G --> H[Generate Base Accounts Data]
-    G --> I[Generate Base Contacts Data]
-    G --> J[Create Intentional Duplicates]
+    C --> E[ENTERPRISE_ID Matching Algorithm]
+    E --> F[Group Accounts by ENTERPRISE_ID]
+    F --> G[Generate Unified GUID for Groups]
     
-    H --> K[Insert Accounts with ENTERPRISE_ID]
-    I --> L[Insert Contacts with Similar Data]
-    J --> K
-    J --> L
+    D --> H[Fuzzy Matching Algorithm]
+    H --> I[Calculate Identity Scores]
+    I --> J[Apply Similarity Threshold]
+    J --> K[Group Contacts by Similarity]
+    K --> L[Generate Unified GUID for Groups]
     
-    K --> M[Accounts Identity Resolution]
-    L --> N[Contacts Identity Resolution]
+    G --> M[Account Identity Groups]
+    L --> N[Contact Identity Groups]
     
-    M --> O[Fetch Accounts from Snowflake]
-    N --> P[Fetch Contacts from Snowflake]
-    
-    O --> Q[Fuzzy Matching Engine: calculate_account_identity_score]
-    P --> R[Fuzzy Matching Engine: calculate_contact_identity_score]
-    
-    Q --> S[Group Matching Accounts by ENTERPRISE_ID]
-    R --> T[Group Matching Contacts by Similarity Score]
-    
-    S --> U[Generate Unified GUID for Account Groups]
-    T --> V[Generate Unified GUID for Contact Groups]
-    
-    U --> W[Export Account Results to CSV]
-    V --> X[Export Contact Results to CSV]
-    
-    W --> Y[Display Resolution Summary]
-    X --> Y
-    
-    Y --> Z[LLM Text Formatting for Reports]
+    M --> O[Identity Resolution Results]
+    N --> O
 ```
 
-### **Detailed Technical Implementation Flow**
+### **Detailed Identity Resolution Logic Implementation**
 
-#### **1. Database Preparation (DatabaseCleaner)**
+#### **1. Accounts Identity Resolution Logic**
 ```python
-def clean_database_tables(self):
-    """Clean all identity resolution related tables"""
-    tables_to_clean = ['ACCOUNTS', 'CONTACTS', 'NOTES']
+def resolve_account_identity(self, accounts: List[AccountRecord]) -> List[AccountGroup]:
+    """Core identity resolution logic for accounts using ENTERPRISE_ID matching"""
     
-    for table in tables_to_clean:
-        try:
-            # Delete all data from table
-            delete_query = f"DELETE FROM {table}"
-            self.snowflake_manager.execute_query(delete_query)
-            
-            # Verify cleanup
-            count_query = f"SELECT COUNT(*) FROM {table}"
-            result = self.snowflake_manager.execute_query(count_query)
-            remaining_count = result.iloc[0, 0]
-            
-            if remaining_count == 0:
-                logger.info(f"✅ Successfully cleaned {table} table")
-            else:
-                logger.warning(f"⚠️ {table} table still has {remaining_count} records")
-                
-        except Exception as e:
-            logger.error(f"❌ Error cleaning {table}: {e}")
-```
-
-#### **2. Test Data Generation (DataGenerator)**
-```python
-def generate_test_data(self):
-    """Generate comprehensive test data with intentional duplicates"""
-    
-    # Generate base accounts
-    base_accounts = self._generate_base_accounts(count=50)
-    
-    # Generate base contacts
-    base_contacts = self._generate_base_contacts(count=100)
-    
-    # Create intentional duplicates for testing
-    duplicate_accounts = self._create_duplicate_accounts(base_accounts)
-    duplicate_contacts = self._create_duplicate_contacts(base_contacts)
-    
-    # Combine and insert into Snowflake
-    all_accounts = base_accounts + duplicate_accounts
-    all_contacts = base_contacts + duplicate_contacts
-    
-    self._insert_accounts_to_snowflake(all_accounts)
-    self._insert_contacts_to_snowflake(all_contacts)
-    
-    logger.info(f"✅ Generated {len(all_accounts)} accounts and {len(all_contacts)} contacts")
-```
-
-#### **3. Accounts Identity Resolution (AccountsResolution)**
-```python
-def resolve_account_identity(self) -> List[AccountGroup]:
-    """Resolve duplicate accounts using ENTERPRISE_ID matching"""
-    
-    # Fetch all accounts from Snowflake
-    accounts = self.fetch_accounts_from_snowflake()
-    logger.info(f"📊 Processing {len(accounts)} accounts for identity resolution")
-    
-    # Group accounts by ENTERPRISE_ID
+    # Step 1: Group accounts by ENTERPRISE_ID
     enterprise_groups = {}
     for account in accounts:
         enterprise_id = account.enterprise_id
@@ -251,40 +169,39 @@ def resolve_account_identity(self) -> List[AccountGroup]:
             enterprise_groups[enterprise_id] = []
         enterprise_groups[enterprise_id].append(account)
     
-    # Create AccountGroup objects with unified GUIDs
+    # Step 2: Create identity groups for duplicates only
     account_groups = []
     for enterprise_id, account_list in enterprise_groups.items():
         if len(account_list) > 1:  # Only groups with duplicates
+            # Step 3: Generate unified GUID for the group
             unified_guid = self.generate_unified_guid()
+            
+            # Step 4: Create AccountGroup with identity resolution metadata
             group = AccountGroup(
                 group_id=unified_guid,
                 enterprise_id=enterprise_id,
                 accounts=account_list,
-                match_confidence=1.0,  # Exact match
-                match_criteria="ENTERPRISE_ID"
+                match_confidence=1.0,  # Exact match for ENTERPRISE_ID
+                match_criteria="ENTERPRISE_ID",
+                resolution_algorithm="exact_match",
+                group_size=len(account_list)
             )
             account_groups.append(group)
     
-    logger.info(f"✅ Found {len(account_groups)} duplicate account groups")
     return account_groups
 ```
 
-#### **4. Contacts Identity Resolution (ContactsResolution)**
+#### **2. Contacts Identity Resolution Logic**
 ```python
-def resolve_contact_identity(self) -> List[ContactGroup]:
-    """Resolve duplicate contacts using fuzzy matching rules"""
+def resolve_contact_identity(self, contacts: List[ContactRecord]) -> List[ContactGroup]:
+    """Core identity resolution logic for contacts using fuzzy matching"""
     
-    # Fetch all contacts from Snowflake
-    contacts = self.fetch_contacts_from_snowflake()
-    logger.info(f"📊 Processing {len(contacts)} contacts for identity resolution")
-    
-    # Initialize fuzzy matching engine
+    # Step 1: Initialize fuzzy matching engine
     fuzzy_matcher = FuzzyMatcher()
-    
-    # Compare all pairs of contacts
     contact_groups = []
     processed_contacts = set()
     
+    # Step 2: Compare all pairs of contacts using fuzzy matching
     for i, contact1 in enumerate(contacts):
         if contact1.contact_id in processed_contacts:
             continue
@@ -292,37 +209,39 @@ def resolve_contact_identity(self) -> List[ContactGroup]:
         current_group = [contact1]
         processed_contacts.add(contact1.contact_id)
         
+        # Step 3: Find all similar contacts for current contact
         for j, contact2 in enumerate(contacts[i+1:], i+1):
             if contact2.contact_id in processed_contacts:
                 continue
                 
-            # Calculate identity score using fuzzy matching
+            # Step 4: Calculate identity score using fuzzy matching rules
             identity_score = fuzzy_matcher.calculate_contact_identity_score(contact1, contact2)
             
-            # Apply matching threshold (0.95 for contacts)
+            # Step 5: Apply similarity threshold (0.95 for contacts)
             if identity_score >= 0.95:
                 current_group.append(contact2)
                 processed_contacts.add(contact2.contact_id)
         
-        # Create group if duplicates found
+        # Step 6: Create identity group if duplicates found
         if len(current_group) > 1:
             unified_guid = self.generate_unified_guid()
             group = ContactGroup(
                 group_id=unified_guid,
                 contacts=current_group,
                 match_confidence=identity_score,
-                match_criteria="Fuzzy Matching (First Name + Last Name + Email + Phone)"
+                match_criteria="Fuzzy Matching (First Name + Last Name + Email + Phone)",
+                resolution_algorithm="fuzzy_matching",
+                group_size=len(current_group)
             )
             contact_groups.append(group)
     
-    logger.info(f"✅ Found {len(contact_groups)} duplicate contact groups")
     return contact_groups
 ```
 
-#### **5. Fuzzy Matching Engine (FuzzyMatcher)**
+#### **3. Fuzzy Matching Algorithm Logic**
 ```python
 def calculate_contact_identity_score(self, contact1: ContactRecord, contact2: ContactRecord) -> float:
-    """Calculate identity score for contact matching using specific rules"""
+    """Core fuzzy matching algorithm for contact identity resolution"""
     
     # Rule 1: Fuzzy First Name match - probability 0.8
     first_name_score = self.calculate_first_name_similarity(contact1.first_name, contact2.first_name)
@@ -352,74 +271,93 @@ def calculate_contact_identity_score(self, contact1: ContactRecord, contact2: Co
     
     return total_score
 
-def calculate_account_identity_score(self, account1: AccountRecord, account2: AccountRecord) -> float:
-    """Calculate identity score for account matching using ENTERPRISE_ID"""
+def calculate_first_name_similarity(self, first_name1: str, first_name2: str) -> float:
+    """Advanced first name similarity calculation using multiple algorithms"""
     
-    # Exact ENTERPRISE_ID match
-    if account1.enterprise_id == account2.enterprise_id:
-        return 1.0
-    else:
-        return 0.0
+    # Normalize names
+    name1 = first_name1.lower().strip()
+    name2 = first_name2.lower().strip()
+    
+    # Use multiple fuzzy matching algorithms
+    ratio_score = fuzz.ratio(name1, name2) / 100.0
+    partial_ratio_score = fuzz.partial_ratio(name1, name2) / 100.0
+    token_sort_score = fuzz.token_sort_ratio(name1, name2) / 100.0
+    token_set_score = fuzz.token_set_ratio(name1, name2) / 100.0
+    
+    # Calculate weighted average of all algorithms
+    similarity_score = (
+        ratio_score * 0.3 +
+        partial_ratio_score * 0.3 +
+        token_sort_score * 0.2 +
+        token_set_score * 0.2
+    )
+    
+    return similarity_score
 ```
 
-#### **6. Unified GUID Generation**
+#### **4. Unified GUID Generation Logic**
 ```python
 def generate_unified_guid(self) -> str:
-    """Generate a unified GUID for identity resolution groups"""
+    """Generate unique identifier for identity resolution groups"""
     import uuid
     return str(uuid.uuid4())
 
-# Example generated GUIDs:
-# Account Group: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-# Contact Group: "b2c3d4e5-f6g7-8901-bcde-f23456789012"
+def create_identity_group_metadata(self, group_type: str, records: List, match_confidence: float) -> Dict:
+    """Create comprehensive metadata for identity resolution groups"""
+    
+    metadata = {
+        'group_id': self.generate_unified_guid(),
+        'group_type': group_type,  # 'account' or 'contact'
+        'record_count': len(records),
+        'match_confidence': match_confidence,
+        'resolution_timestamp': datetime.now().isoformat(),
+        'algorithm_version': '1.0',
+        'record_ids': [record.account_id if hasattr(record, 'account_id') else record.contact_id for record in records]
+    }
+    
+    return metadata
 ```
 
-#### **7. Results Export and Reporting**
+#### **5. Identity Resolution Group Creation Logic**
 ```python
-def export_results_to_csv(self, groups: List[Union[AccountGroup, ContactGroup]], filename: str):
-    """Export identity resolution results to CSV"""
+def create_account_identity_group(self, enterprise_id: str, accounts: List[AccountRecord]) -> AccountGroup:
+    """Create identity resolution group for accounts"""
     
-    with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = [
-            'group_id', 'match_confidence', 'match_criteria', 
-            'record_count', 'record_ids', 'record_names'
-        ]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for group in groups:
-            record_ids = [record.contact_id if hasattr(record, 'contact_id') else record.account_id for record in group.contacts if hasattr(group, 'contacts') else group.accounts]
-            record_names = [f"{record.first_name} {record.last_name}" if hasattr(record, 'first_name') else record.account_name for record in group.contacts if hasattr(group, 'contacts') else group.accounts]
-            
-            writer.writerow({
-                'group_id': group.group_id,
-                'match_confidence': group.match_confidence,
-                'match_criteria': group.match_criteria,
-                'record_count': len(group.contacts) if hasattr(group, 'contacts') else len(group.accounts),
-                'record_ids': '; '.join(record_ids),
-                'record_names': '; '.join(record_names)
-            })
+    # Generate unified GUID
+    unified_guid = self.generate_unified_guid()
     
-    logger.info(f"✅ Exported {len(groups)} groups to {filename}")
-```
+    # Create group with identity resolution metadata
+    group = AccountGroup(
+        group_id=unified_guid,
+        enterprise_id=enterprise_id,
+        accounts=accounts,
+        match_confidence=1.0,  # Exact match for ENTERPRISE_ID
+        match_criteria="ENTERPRISE_ID",
+        resolution_algorithm="exact_match",
+        group_size=len(accounts),
+        resolution_timestamp=datetime.now().isoformat()
+    )
+    
+    return group
 
-#### **8. LLM Text Formatting Integration**
-```python
-def format_identity_resolution_report(self, report_text: str) -> str:
-    """Format identity resolution reports using modern LLM approach"""
+def create_contact_identity_group(self, contacts: List[ContactRecord], match_confidence: float) -> ContactGroup:
+    """Create identity resolution group for contacts"""
     
-    # Initialize modern text formatter
-    formatter = ModernTextFormatter()
+    # Generate unified GUID
+    unified_guid = self.generate_unified_guid()
     
-    # Check if text needs formatting
-    if formatter._needs_formatting(report_text):
-        # Use LLM to fix formatting issues
-        formatted_text = formatter.format_with_llm(report_text)
-        logger.info("✅ Applied LLM text formatting to identity resolution report")
-        return formatted_text
-    else:
-        logger.info("ℹ️ No formatting needed for identity resolution report")
-        return report_text
+    # Create group with identity resolution metadata
+    group = ContactGroup(
+        group_id=unified_guid,
+        contacts=contacts,
+        match_confidence=match_confidence,
+        match_criteria="Fuzzy Matching (First Name + Last Name + Email + Phone)",
+        resolution_algorithm="fuzzy_matching",
+        group_size=len(contacts),
+        resolution_timestamp=datetime.now().isoformat()
+    )
+    
+    return group
 ```
 
 ### **Data Transformation Pipeline**
