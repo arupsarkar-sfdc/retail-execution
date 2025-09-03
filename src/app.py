@@ -12,6 +12,7 @@ from pathlib import Path
 from pmi_retail.agents.components.pdf_processor import PDFProcessor
 from pmi_retail.agents.components.vectorstore import VectorStoreManager
 from pmi_retail.agents.components.chat_chain import ChatChainManager
+from pmi_retail.agents.account_summary import AccountSummaryService
 
 # Load environment variables
 load_dotenv()
@@ -41,6 +42,12 @@ def initialize_session_state():
         st.session_state.chat_history = []
     if 'processing_status' not in st.session_state:
         st.session_state.processing_status = {}
+    if 'account_summary_service' not in st.session_state:
+        st.session_state.account_summary_service = None
+    if 'account_list' not in st.session_state:
+        st.session_state.account_list = []
+    if 'last_account_summary' not in st.session_state:
+        st.session_state.last_account_summary = None
 
 def render_sidebar():
     """Render sidebar with configuration options"""
@@ -177,7 +184,7 @@ def render_status_panel():
     """Render system status panel"""
     st.subheader("📊 System Status")
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         if st.session_state.pdf_processor:
@@ -196,6 +203,12 @@ def render_status_panel():
             st.success("✅ Chat Ready")
         else:
             st.error("❌ Chat Not Ready")
+    
+    with col4:
+        if st.session_state.account_summary_service:
+            st.success("✅ Account Summary Ready")
+        else:
+            st.warning("⚠️ Account Summary Not Ready")
 
 def render_pdf_upload_section(config):
     """Render PDF upload and processing section"""
@@ -393,6 +406,218 @@ def render_chat_section(config):
                             st.markdown(f"**Source {j+1}:**")
                             st.text(doc.page_content[:300] + "..." if len(doc.page_content) > 300 else doc.page_content)
 
+def render_account_summary_section(config):
+    """Render Account Summary section"""
+    st.header("📊 AI-Powered Account Summary")
+    st.markdown("Generate comprehensive AI-powered summaries for your accounts using OpenAI and Snowflake data.")
+    
+    # Initialize Account Summary Service if needed
+    if not st.session_state.account_summary_service:
+        if config["api_key"]:
+            with st.spinner("Initializing Account Summary Service..."):
+                try:
+                    st.session_state.account_summary_service = AccountSummaryService(
+                        model_name=config["llm_model"],
+                        temperature=config["temperature"],
+                        max_tokens=config["max_tokens"]
+                    )
+                    st.success("✅ Account Summary Service initialized!")
+                except Exception as e:
+                    st.error(f"Failed to initialize Account Summary Service: {e}")
+                    return
+        else:
+            st.error("Please set your OpenAI API key first!")
+            return
+    
+    # Load account list
+    if not st.session_state.account_list:
+        with st.spinner("Loading account list..."):
+            try:
+                accounts = st.session_state.account_summary_service.get_account_list()
+                st.session_state.account_list = accounts
+            except Exception as e:
+                st.error(f"Failed to load accounts: {e}")
+                return
+    
+    if not st.session_state.account_list:
+        st.warning("No accounts found. Please check your database connection.")
+        return
+    
+    # Account selection
+    st.subheader("📋 Select Account")
+    
+    # Create account options for selectbox
+    account_options = {}
+    for account in st.session_state.account_list:
+        display_name = f"{account['account_name']} ({account['account_id']}) - {account['segment']}"
+        account_options[display_name] = account['account_id']
+    
+    selected_display = st.selectbox(
+        "Choose an account to analyze:",
+        options=list(account_options.keys()),
+        help="Select an account to generate an AI-powered summary",
+        key="account_selector"
+    )
+    
+    if selected_display:
+        selected_account_id = account_options[selected_display]
+        
+        # Generate summary button
+        st.subheader("🚀 Generate Summary")
+        
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            generate_clicked = st.button("🤖 Generate AI Summary", type="primary", use_container_width=True)
+        
+        with col2:
+            if st.button("🔄 Refresh Account List", use_container_width=True):
+                st.session_state.account_list = []
+                st.rerun()
+        
+        if generate_clicked:
+            with st.spinner("Generating AI-powered account summary..."):
+                try:
+                    # Generate summary
+                    summary_data = st.session_state.account_summary_service.generate_account_summary(selected_account_id)
+                    
+                    if 'error' in summary_data:
+                        st.error(f"Error: {summary_data['error']}")
+                    else:
+                        # Store in session state
+                        st.session_state.last_account_summary = summary_data
+                        st.success("✅ Account summary generated successfully!")
+                        st.rerun()
+                        
+                except Exception as e:
+                    st.error(f"Failed to generate summary: {e}")
+        
+        # Display results if available
+        if st.session_state.last_account_summary:
+            st.markdown("---")
+            display_account_summary_results(st.session_state.last_account_summary)
+
+def display_account_summary_results(summary_data):
+    """Display the generated account summary results"""
+    st.subheader(f"📊 Account Summary: {summary_data.get('account_name', 'Unknown')}")
+    
+    # Metadata metrics
+    metadata = summary_data.get('metadata', {})
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Confidence Score", f"{metadata.get('confidence_score', 0):.1%}")
+    
+    with col2:
+        st.metric("Total Notes", metadata.get('total_notes', 0))
+    
+    with col3:
+        st.metric("Total Contacts", metadata.get('total_contacts', 0))
+    
+    with col4:
+        st.metric("Total Transactions", metadata.get('total_transactions', 0))
+    
+    # AI Summary sections
+    ai_summary = summary_data.get('summary', {})
+    
+    # Executive Summary
+    if ai_summary.get('executive_summary'):
+        st.markdown("### 🎯 Executive Summary")
+        st.info(ai_summary['executive_summary'])
+    
+    # Business Insights
+    if ai_summary.get('business_insights'):
+        st.markdown("### 💡 Business Insights")
+        for insight in ai_summary['business_insights']:
+            st.markdown(f"• {insight}")
+    
+    # Relationship Status
+    if ai_summary.get('relationship_status'):
+        st.markdown("### 🤝 Relationship Status")
+        st.info(ai_summary['relationship_status'])
+    
+    # Revenue Opportunities
+    if ai_summary.get('revenue_opportunities'):
+        st.markdown("### 💰 Revenue Opportunities")
+        for opportunity in ai_summary['revenue_opportunities']:
+            st.markdown(f"• {opportunity}")
+    
+    # Risk Factors
+    if ai_summary.get('risk_factors'):
+        st.markdown("### ⚠️ Risk Factors")
+        for risk in ai_summary['risk_factors']:
+            st.markdown(f"• {risk}")
+    
+    # Recommended Actions
+    if ai_summary.get('recommended_actions'):
+        st.markdown("### 📋 Recommended Actions")
+        for action in ai_summary['recommended_actions']:
+            st.markdown(f"• {action}")
+    
+    # Key Insights from Notes
+    key_insights = summary_data.get('key_insights', [])
+    if key_insights:
+        st.markdown("### 🔍 Key Insights from Notes")
+        for insight in key_insights:
+            st.markdown(f"• {insight}")
+    
+    # System Recommendations
+    recommendations = summary_data.get('recommendations', [])
+    if recommendations:
+        st.markdown("### 🎯 System Recommendations")
+        for rec in recommendations:
+            st.markdown(f"• {rec}")
+    
+    # System Risk Assessment
+    risk_factors = summary_data.get('risk_factors', [])
+    if risk_factors:
+        st.markdown("### ⚠️ System Risk Assessment")
+        for risk in risk_factors:
+            st.markdown(f"• {risk}")
+    
+    # Export options
+    st.markdown("### 📤 Export Options")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("📄 Export as JSON", use_container_width=True):
+            import json
+            from datetime import datetime
+            json_data = json.dumps(summary_data, indent=2, default=str)
+            st.download_button(
+                label="Download JSON",
+                data=json_data,
+                file_name=f"account_summary_{summary_data.get('account_id', 'unknown')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                mime="application/json"
+            )
+    
+    with col2:
+        if st.button("📊 Export as Markdown", use_container_width=True):
+            # Create markdown report
+            from datetime import datetime
+            markdown_content = f"""# Account Summary Report
+
+## Account Information
+- **Account ID:** {summary_data.get('account_id', 'N/A')}
+- **Account Name:** {summary_data.get('account_name', 'N/A')}
+- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+## Executive Summary
+{summary_data.get('summary', {}).get('executive_summary', 'N/A')}
+
+## Business Insights
+{chr(10).join([f"- {insight}" for insight in summary_data.get('summary', {}).get('business_insights', [])])}
+
+## Recommendations
+{chr(10).join([f"- {rec}" for rec in summary_data.get('recommendations', [])])}
+"""
+            
+            st.download_button(
+                label="Download Markdown",
+                data=markdown_content,
+                file_name=f"account_summary_{summary_data.get('account_id', 'unknown')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
+                mime="text/markdown"
+            )
+
 def render_advanced_features():
     """Render advanced features section"""
     with st.expander("🔧 Advanced Features"):
@@ -430,6 +655,12 @@ def render_advanced_features():
                         st.success("✅ Embeddings working")
                     except Exception as e:
                         st.error(f"❌ Embeddings failed: {str(e)}")
+        
+        # Account Summary Service Status
+        if st.session_state.account_summary_service:
+            st.subheader("Account Summary Service Status")
+            status = st.session_state.account_summary_service.get_service_status()
+            st.json(status)
 
 def main():
     """Main application function"""
@@ -447,7 +678,7 @@ def main():
     render_status_panel()
     
     # Main content
-    tab1, tab2, tab3 = st.tabs(["📄 Upload PDF", "💬 Chat", "🔧 Advanced"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📄 Upload PDF", "💬 Chat", "📊 Account Summary", "🔧 Advanced"])
     
     with tab1:
         render_pdf_upload_section(config)
@@ -456,15 +687,24 @@ def main():
         render_chat_section(config)
     
     with tab3:
+        render_account_summary_section(config)
+    
+    with tab4:
         render_advanced_features()
     
     # Footer
     st.markdown("---")
     st.markdown("""
-    **Built with:** Streamlit • LangChain • FAISS • OpenAI • UV Package Manager
+    **Built with:** Streamlit • LangChain • FAISS • OpenAI • UV Package Manager • Snowflake
+    
+    **Features:**
+    - 📄 PDF Document Chat with AI
+    - 📊 AI-Powered Account Summary Generation
+    - 🔍 Advanced Analytics and Insights
     
     **Requirements:**
     - OpenAI API key
+    - Snowflake database connection
     - Internet connection for API calls
     - Python environment managed with UV
     """)
