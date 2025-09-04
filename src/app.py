@@ -15,6 +15,7 @@ from pmi_retail.agents.components.vectorstore import VectorStoreManager
 from pmi_retail.agents.components.chat_chain import ChatChainManager
 from pmi_retail.agents.account_summary import AccountSummaryService
 from pmi_retail.segmentation import RealTimeSegmentationEngine, SegmentationAgent
+from pmi_retail.cross_sell import CrossSellOptimizationEngine, CrossSellAgent
 from pmi_retail.database.snowflake.connection import SnowflakeManager
 
 # Load environment variables
@@ -57,6 +58,12 @@ def initialize_session_state():
         st.session_state.segmentation_agent = None
     if 'segmentation_data' not in st.session_state:
         st.session_state.segmentation_data = None
+    if 'cross_sell_engine' not in st.session_state:
+        st.session_state.cross_sell_engine = None
+    if 'cross_sell_agent' not in st.session_state:
+        st.session_state.cross_sell_agent = None
+    if 'cross_sell_data' not in st.session_state:
+        st.session_state.cross_sell_data = None
 
 def render_sidebar():
     """Render sidebar with configuration options"""
@@ -235,10 +242,16 @@ def render_status_panel():
             st.info("ℹ️ No Segmentation Data")
     
     with col7:
-        st.info("🔧 Advanced Features")
+        if st.session_state.cross_sell_engine:
+            st.success("✅ Cross-Sell Ready")
+        else:
+            st.warning("⚠️ Cross-Sell Not Ready")
     
     with col8:
-        st.info("📊 Analytics Ready")
+        if st.session_state.cross_sell_data:
+            st.success("✅ Cross-Sell Data Loaded")
+        else:
+            st.info("ℹ️ No Cross-Sell Data")
 
 def render_pdf_upload_section(config):
     """Render PDF upload and processing section"""
@@ -1227,6 +1240,71 @@ def display_segmentation_results(segmentation_data):
         
         st.plotly_chart(fig_3d, use_container_width=True)
         
+        # Product Propensity Analysis
+        if 'product_propensity' in segmentation_data and len(segmentation_data['product_propensity']) > 0:
+            st.subheader("🎯 Product Propensity Analysis")
+            
+            propensity_df = segmentation_data['product_propensity']
+            
+            # Propensity metrics
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric("Total Combinations", f"{len(propensity_df):,}")
+            
+            with col2:
+                avg_propensity = propensity_df['PROPENSITY_SCORE'].mean()
+                st.metric("Avg Propensity Score", f"{avg_propensity:.1f}")
+            
+            with col3:
+                high_propensity = len(propensity_df[propensity_df['PROPENSITY_SCORE'] > 80])
+                st.metric("High Propensity (>80)", f"{high_propensity:,}")
+            
+            with col4:
+                max_propensity = propensity_df['PROPENSITY_SCORE'].max()
+                st.metric("Highest Score", f"{max_propensity:.1f}")
+            
+            # Top propensity scores
+            st.subheader("🏆 Top Product Propensity Scores")
+            
+            # Get top 20 propensity scores
+            top_propensity = propensity_df.nlargest(20, 'PROPENSITY_SCORE')
+            
+            # Display as a table
+            st.dataframe(
+                top_propensity[['ACCOUNT_NAME', 'CATEGORY', 'BRAND', 'PROPENSITY_SCORE', 'CATEGORY_AFFINITY_SCORE', 'RECENCY_SCORE', 'FREQUENCY_SCORE']],
+                use_container_width=True
+            )
+            
+            # Propensity score distribution
+            st.subheader("📊 Propensity Score Distribution")
+            
+            import plotly.express as px
+            
+            fig_propensity = px.histogram(
+                propensity_df, 
+                x='PROPENSITY_SCORE', 
+                title="Distribution of Product Propensity Scores",
+                nbins=20
+            )
+            fig_propensity.update_layout(xaxis_title="Propensity Score", yaxis_title="Count")
+            st.plotly_chart(fig_propensity, use_container_width=True)
+            
+            # Category analysis
+            st.subheader("📈 Top Categories by Propensity")
+            
+            category_propensity = propensity_df.groupby('CATEGORY').agg({
+                'PROPENSITY_SCORE': ['mean', 'count'],
+                'ACCOUNT_ID': 'nunique'
+            }).round(2)
+            
+            # Flatten column names
+            category_propensity.columns = ['Avg_Propensity', 'Total_Combinations', 'Unique_Accounts']
+            category_propensity = category_propensity.reset_index()
+            category_propensity = category_propensity.sort_values('Avg_Propensity', ascending=False)
+            
+            st.dataframe(category_propensity.head(10), use_container_width=True)
+        
         # Business Opportunities
         st.subheader("💰 Business Opportunities")
         
@@ -1302,6 +1380,288 @@ def display_segmentation_results(segmentation_data):
                 except Exception as e:
                     st.error(f"❌ Error generating campaign targeting: {str(e)}")
 
+def render_cross_sell_section(config):
+    """Render cross-sell optimization section"""
+    st.header("🛒 Cross-Sell Optimization & Market Basket Analysis")
+    st.markdown("Advanced product recommendations, market basket analysis, and promotional optimization powered by Snowflake data.")
+    
+    # Initialize cross-sell services
+    if not st.session_state.cross_sell_engine:
+        with st.spinner("Initializing cross-sell engine..."):
+            try:
+                sf_manager = SnowflakeManager()
+                if sf_manager.connect():
+                    st.session_state.cross_sell_engine = CrossSellOptimizationEngine(sf_manager)
+                    st.session_state.cross_sell_agent = CrossSellAgent(sf_manager)
+                    st.success("✅ Cross-sell engine initialized successfully!")
+                else:
+                    st.error("❌ Failed to connect to Snowflake")
+                    return
+            except Exception as e:
+                st.error(f"❌ Error initializing cross-sell engine: {str(e)}")
+                return
+    
+    # Cross-sell controls
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        lookback_days = st.slider("Analysis Period (Days)", min_value=30, max_value=730, value=365, step=30, key="cross_sell_lookback")
+    
+    with col2:
+        if st.button("🔄 Generate Cross-Sell Analysis", type="primary", key="cross_sell_generate"):
+            with st.spinner("Generating cross-sell analysis..."):
+                try:
+                    st.session_state.cross_sell_data = st.session_state.cross_sell_engine.generate_comprehensive_cross_sell_analysis(lookback_days)
+                    st.success("✅ Cross-sell analysis completed!")
+                except Exception as e:
+                    st.error(f"❌ Error generating cross-sell analysis: {str(e)}")
+    
+    with col3:
+        if st.button("💾 Save to Snowflake", key="cross_sell_save"):
+            if st.session_state.cross_sell_data:
+                with st.spinner("Saving to Snowflake..."):
+                    try:
+                        success = st.session_state.cross_sell_engine.save_cross_sell_results_to_snowflake(st.session_state.cross_sell_data)
+                        if success:
+                            st.success("✅ Data saved to Snowflake!")
+                        else:
+                            st.error("❌ Failed to save to Snowflake")
+                    except Exception as e:
+                        st.error(f"❌ Error saving to Snowflake: {str(e)}")
+            else:
+                st.warning("⚠️ No cross-sell data to save")
+    
+    # Display results if available
+    if st.session_state.cross_sell_data:
+        display_cross_sell_results(st.session_state.cross_sell_data)
+    else:
+        st.info("👆 Click 'Generate Cross-Sell Analysis' to start the analysis")
+
+def display_cross_sell_results(cross_sell_data):
+    """Display cross-sell analysis results"""
+    
+    # Overview metrics
+    if 'association_rules' in cross_sell_data:
+        basket_df = cross_sell_data['association_rules']
+        
+        st.subheader("📊 Cross-Sell Overview")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Product Combinations", f"{len(basket_df):,}")
+        
+        with col2:
+            avg_confidence = basket_df['CONFIDENCE'].mean() if 'CONFIDENCE' in basket_df.columns else 0
+            st.metric("Avg Confidence", f"{avg_confidence:.2f}")
+        
+        with col3:
+            high_confidence = len(basket_df[basket_df['CONFIDENCE'] > 0.5]) if 'CONFIDENCE' in basket_df.columns else 0
+            st.metric("High Confidence (>50%)", f"{high_confidence:,}")
+        
+        with col4:
+            total_support = basket_df['SUPPORT'].sum() if 'SUPPORT' in basket_df.columns else 0
+            st.metric("Total Support", f"{total_support:.3f}")
+        
+        # Market basket analysis
+        st.subheader("🛍️ Market Basket Analysis")
+        
+        if 'CONFIDENCE' in basket_df.columns:
+            # Convert numeric columns to proper dtypes
+            numeric_columns = ['SUPPORT', 'CONFIDENCE', 'LIFT']
+            for col in numeric_columns:
+                if col in basket_df.columns:
+                    basket_df[col] = pd.to_numeric(basket_df[col], errors='coerce')
+            
+            # Top associations
+            st.subheader("🏆 Top Product Associations")
+            
+            # Get top 20 associations
+            top_associations = basket_df.nlargest(20, 'CONFIDENCE')
+            
+            # Display as a table
+            display_columns = ['PRODUCT_A_CATEGORY', 'PRODUCT_A_BRAND', 'PRODUCT_B_CATEGORY', 'PRODUCT_B_BRAND', 'SUPPORT', 'CONFIDENCE', 'LIFT']
+            available_columns = [col for col in display_columns if col in top_associations.columns]
+            st.dataframe(
+                top_associations[available_columns],
+                use_container_width=True
+            )
+            
+            # Association rules visualization
+            st.subheader("📈 Association Rules Visualization")
+            
+            import plotly.express as px
+            
+            fig_associations = px.scatter(
+                top_associations.head(15),
+                x='SUPPORT',
+                y='CONFIDENCE',
+                size='LIFT',
+                hover_data=['PRODUCT_A_CATEGORY', 'PRODUCT_A_BRAND', 'PRODUCT_B_CATEGORY', 'PRODUCT_B_BRAND'],
+                title="Product Association Rules (Support vs Confidence)"
+            )
+            fig_associations.update_layout(xaxis_title="Support", yaxis_title="Confidence")
+            st.plotly_chart(fig_associations, use_container_width=True)
+    
+    # Product affinity analysis
+    if 'affinity_matrix_shape' in cross_sell_data:
+        st.subheader("🎯 Product Affinity Analysis")
+        
+        affinity_shape = cross_sell_data['affinity_matrix_shape']
+        
+        # Affinity metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Matrix Dimensions", f"{affinity_shape[0]}x{affinity_shape[1]}")
+        
+        with col2:
+            st.metric("Total Products", f"{affinity_shape[0]:,}")
+        
+        with col3:
+            st.metric("Affinity Pairs", f"{affinity_shape[0] * affinity_shape[1]:,}")
+        
+        with col4:
+            st.metric("Analysis Status", "✅ Complete")
+        
+        st.info("💡 Product affinity matrix calculated based on association rules and transaction patterns")
+    
+    # Promotional analysis
+    if 'promotional_analysis' in cross_sell_data:
+        st.subheader("🎯 Promotional Analysis")
+        
+        promo_df = cross_sell_data['promotional_analysis']
+        
+        if len(promo_df) > 0:
+            # Convert numeric columns to proper dtypes
+            numeric_columns = ['PROMOTIONAL_IMPACT', 'REVENUE_IMPACT']
+            for col in numeric_columns:
+                if col in promo_df.columns:
+                    promo_df[col] = pd.to_numeric(promo_df[col], errors='coerce')
+            
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric("Promotional Campaigns", f"{len(promo_df):,}")
+            
+            with col2:
+                avg_impact = promo_df['PROMOTIONAL_IMPACT'].mean() if 'PROMOTIONAL_IMPACT' in promo_df.columns else 0
+                st.metric("Avg Impact", f"{avg_impact:.2f}")
+            
+            with col3:
+                total_revenue = promo_df['REVENUE_IMPACT'].sum() if 'REVENUE_IMPACT' in promo_df.columns else 0
+                st.metric("Revenue Impact", f"${total_revenue:,.2f}")
+            
+            with col4:
+                st.metric("Analysis Period", "90 days")
+            
+            # Display promotional data
+            st.subheader("📊 Promotional Performance")
+            st.dataframe(promo_df, use_container_width=True)
+        else:
+            st.info("ℹ️ No promotional data available for the selected period")
+    
+    # Cross-sell opportunities
+    if 'opportunity_summary' in cross_sell_data:
+        st.subheader("💡 Cross-Sell Opportunities")
+        
+        opp_df = cross_sell_data['opportunity_summary']
+        
+        if len(opp_df) > 0:
+            # Convert numeric columns to proper dtypes
+            numeric_columns = ['REVENUE_POTENTIAL']
+            for col in numeric_columns:
+                if col in opp_df.columns:
+                    opp_df[col] = pd.to_numeric(opp_df[col], errors='coerce')
+            
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric("Total Opportunities", f"{len(opp_df):,}")
+            
+            with col2:
+                avg_potential = opp_df['REVENUE_POTENTIAL'].mean() if 'REVENUE_POTENTIAL' in opp_df.columns else 0
+                st.metric("Avg Revenue Potential", f"${avg_potential:,.2f}")
+            
+            with col3:
+                total_potential = opp_df['REVENUE_POTENTIAL'].sum() if 'REVENUE_POTENTIAL' in opp_df.columns else 0
+                st.metric("Total Revenue Potential", f"${total_potential:,.2f}")
+            
+            with col4:
+                st.metric("Priority Level", "High")
+            
+            # Display opportunities
+            st.subheader("🏆 Top Cross-Sell Opportunities")
+            st.dataframe(opp_df, use_container_width=True)
+        else:
+            st.info("ℹ️ No cross-sell opportunities identified")
+    
+    # Segment insights
+    if 'segment_insights' in cross_sell_data:
+        st.subheader("📈 Segment Insights")
+        
+        insights = cross_sell_data['segment_insights']
+        
+        if insights:
+            for segment, data in insights.items():
+                with st.expander(f"Segment: {segment}"):
+                    st.write(f"**Strategy:** {data.get('strategy', 'N/A')}")
+                    st.write(f"**Focus:** {data.get('focus', 'N/A')}")
+                    st.write(f"**Priority:** {data.get('priority', 'N/A')}")
+    
+    # Account-specific recommendations (using agent)
+    st.subheader("🎯 Account-Specific Recommendations")
+    
+    account_id = st.text_input("Enter Account ID for Recommendations", placeholder="e.g., ACC0001")
+    
+    if st.button("🔍 Get Recommendations", key="get_account_recs"):
+        if account_id:
+            with st.spinner("Generating account-specific recommendations..."):
+                try:
+                    recommendations = st.session_state.cross_sell_agent.analyze_account_cross_sell_opportunities(account_id)
+                    
+                    if 'recommendations' in recommendations and recommendations['recommendations']:
+                        st.success(f"✅ Found {len(recommendations['recommendations'])} recommendations for {account_id}")
+                        
+                        # Display account info
+                        if 'account_name' in recommendations:
+                            st.info(f"**Account:** {recommendations['account_name']} | **Segment:** {recommendations.get('segment', 'N/A')}")
+                        
+                        for i, rec in enumerate(recommendations['recommendations'][:10], 1):
+                            with st.expander(f"Recommendation {i}: {rec.get('recommended_category', 'Unknown Category')} - {rec.get('recommended_brand', 'Unknown Brand')}"):
+                                col1, col2 = st.columns(2)
+                                
+                                with col1:
+                                    st.write(f"**Recommended Category:** {rec.get('recommended_category', 'N/A')}")
+                                    st.write(f"**Recommended Brand:** {rec.get('recommended_brand', 'N/A')}")
+                                    st.write(f"**Trigger Category:** {rec.get('trigger_category', 'N/A')}")
+                                    st.write(f"**Confidence:** {rec.get('confidence', 0):.3f}")
+                                
+                                with col2:
+                                    st.write(f"**Lift:** {rec.get('lift', 0):.2f}")
+                                    st.write(f"**Support:** {rec.get('support', 0):.3f}")
+                                    st.write(f"**Final Score:** {rec.get('final_score', 0):.1f}")
+                                    st.write(f"**Avg Basket Value:** ${rec.get('avg_basket_value', 0):,.2f}")
+                                
+                                # Display suggested products if available
+                                if 'suggested_products' in rec and rec['suggested_products']:
+                                    st.write("**Suggested Products:**")
+                                    for product in rec['suggested_products'][:3]:  # Show top 3 products
+                                        st.write(f"• {product.get('PRODUCT_NAME', 'N/A')} - ${product.get('UNIT_PRICE', 0):,.2f}")
+                        
+                        # Display active promotions if available
+                        if 'active_promotions' in recommendations and recommendations['active_promotions']:
+                            st.subheader("🎯 Active Promotions")
+                            for promo in recommendations['active_promotions'][:3]:  # Show top 3 promotions
+                                st.write(f"• **{promo.get('CAMPAIGN_NAME', 'N/A')}** - {promo.get('DISCOUNT_PERCENTAGE', 0)}% off")
+                    else:
+                        st.warning(f"⚠️ No recommendations found for account {account_id}")
+                        
+                except Exception as e:
+                    st.error(f"❌ Error generating recommendations: {str(e)}")
+        else:
+            st.warning("⚠️ Please enter an Account ID")
+
 def main():
     """Main application function"""
     # Initialize session state
@@ -1318,7 +1678,7 @@ def main():
     render_status_panel()
     
     # Main content
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📄 Upload PDF", "💬 Chat", "📊 Account Summary", "🎯 Customer Segmentation", "🔧 Advanced"])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📄 Upload PDF", "💬 Chat", "📊 Account Summary", "🎯 Customer Segmentation", "🛒 Cross-Sell Optimization", "🔧 Advanced"])
     
     with tab1:
         render_pdf_upload_section(config)
@@ -1333,6 +1693,9 @@ def main():
         render_segmentation_section(config)
     
     with tab5:
+        render_cross_sell_section(config)
+    
+    with tab6:
         render_advanced_features()
     
     # Footer

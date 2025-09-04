@@ -11,6 +11,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 import sys
 from pathlib import Path
 import json
+import pandas as pd
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -82,6 +83,42 @@ def analyze(
                 )
             
             console.print(table)
+        
+        # Display product propensity scores
+        if 'product_propensity' in segments_data and len(segments_data['product_propensity']) > 0:
+            propensity_df = segments_data['product_propensity']
+            
+            console.print("\n🎯 Top Product Propensity Scores:")
+            
+            # Get top 10 propensity scores
+            top_propensity = propensity_df.nlargest(10, 'PROPENSITY_SCORE')
+            
+            table = Table()
+            table.add_column("Account", style="cyan")
+            table.add_column("Category", style="magenta")
+            table.add_column("Brand", style="green")
+            table.add_column("Propensity Score", justify="right", style="yellow")
+            table.add_column("Affinity Score", justify="right", style="blue")
+            table.add_column("Last Purchase", style="white")
+            
+            for _, row in top_propensity.iterrows():
+                table.add_row(
+                    row['ACCOUNT_NAME'][:20] + "..." if len(str(row['ACCOUNT_NAME'])) > 20 else str(row['ACCOUNT_NAME']),
+                    str(row['CATEGORY']),
+                    str(row['BRAND']),
+                    f"{row['PROPENSITY_SCORE']:.1f}",
+                    f"{row['CATEGORY_AFFINITY_SCORE']:.1f}",
+                    str(row['LAST_PURCHASE_DATE']) if pd.notna(row['LAST_PURCHASE_DATE']) else 'N/A'
+                )
+            
+            console.print(table)
+            
+            # Show propensity score distribution
+            console.print(f"\n📊 Propensity Score Statistics:")
+            console.print(f"   • Total product combinations: {len(propensity_df):,}")
+            console.print(f"   • Average propensity score: {propensity_df['PROPENSITY_SCORE'].mean():.1f}")
+            console.print(f"   • Highest propensity score: {propensity_df['PROPENSITY_SCORE'].max():.1f}")
+            console.print(f"   • Accounts with high propensity (>80): {len(propensity_df[propensity_df['PROPENSITY_SCORE'] > 80]):,}")
         
         # Save to Snowflake
         if save_to_snowflake:

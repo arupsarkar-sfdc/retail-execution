@@ -34,6 +34,7 @@ A comprehensive workshop demonstrating retail execution capabilities through Mas
   - 📄 PDF Document Chat with AI
   - 📊 AI-Powered Account Summary Generation
   - 🎯 Real-Time Customer Segmentation & Propensity Scoring
+  - 🛒 Cross-Sell Optimization & Market Basket Analysis
   - 🔍 Advanced Analytics and Insights
 
 ### Customer Segmentation & Analytics
@@ -43,6 +44,14 @@ A comprehensive workshop demonstrating retail execution capabilities through Mas
 - **`uv run pmi-segmentation campaign-targeting <type>`** - Generate campaign targeting recommendations
 - **`uv run pmi-segmentation dashboard`** - Launch interactive Streamlit dashboard
 - **`uv run pmi-segmentation status`** - Check segmentation system status
+
+### Cross-Sell Optimization & Market Basket Analysis
+- **`uv run pmi-cross-sell analyze [--lookback-days 365]`** - Run comprehensive cross-sell analysis
+- **`uv run pmi-cross-sell account-recommendations <account_id>`** - Get product recommendations for account
+- **`uv run pmi-cross-sell market-basket`** - Generate market basket analysis
+- **`uv run pmi-cross-sell promotional-optimization`** - Optimize promotional campaigns
+- **`uv run pmi-cross-sell dashboard`** - Launch interactive Streamlit dashboard
+- **`uv run pmi-cross-sell status`** - Check cross-sell system status
 
 ### Data Scale Options
 - **small**: 30 accounts, 20 products, 3 months history
