@@ -61,6 +61,7 @@ dev = [
 pmi-setup = "pmi_retail.scripts.setup:main"
 pmi-demo = "pmi_retail.scripts.demo:main"
 pmi-agents = "pmi_retail.agents.cli:main"
+pmi-segmentation = "pmi_retail.segmentation.segmentation_cli:app"
 
 [build-system]
 requires = ["hatchling"]

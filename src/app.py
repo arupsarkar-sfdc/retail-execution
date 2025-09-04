@@ -5,6 +5,7 @@ PDF Chat QA with OpenAI, FAISS, and LangChain
 
 import os
 import streamlit as st
+import pandas as pd
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -13,6 +14,8 @@ from pmi_retail.agents.components.pdf_processor import PDFProcessor
 from pmi_retail.agents.components.vectorstore import VectorStoreManager
 from pmi_retail.agents.components.chat_chain import ChatChainManager
 from pmi_retail.agents.account_summary import AccountSummaryService
+from pmi_retail.segmentation import RealTimeSegmentationEngine, SegmentationAgent
+from pmi_retail.database.snowflake.connection import SnowflakeManager
 
 # Load environment variables
 load_dotenv()
@@ -48,6 +51,12 @@ def initialize_session_state():
         st.session_state.account_list = []
     if 'last_account_summary' not in st.session_state:
         st.session_state.last_account_summary = None
+    if 'segmentation_engine' not in st.session_state:
+        st.session_state.segmentation_engine = None
+    if 'segmentation_agent' not in st.session_state:
+        st.session_state.segmentation_agent = None
+    if 'segmentation_data' not in st.session_state:
+        st.session_state.segmentation_data = None
 
 def render_sidebar():
     """Render sidebar with configuration options"""
@@ -209,6 +218,27 @@ def render_status_panel():
             st.success("✅ Account Summary Ready")
         else:
             st.warning("⚠️ Account Summary Not Ready")
+    
+    # Add a second row for additional services
+    col5, col6, col7, col8 = st.columns(4)
+    
+    with col5:
+        if st.session_state.segmentation_engine:
+            st.success("✅ Segmentation Ready")
+        else:
+            st.warning("⚠️ Segmentation Not Ready")
+    
+    with col6:
+        if st.session_state.segmentation_data:
+            st.success("✅ Segmentation Data Loaded")
+        else:
+            st.info("ℹ️ No Segmentation Data")
+    
+    with col7:
+        st.info("🔧 Advanced Features")
+    
+    with col8:
+        st.info("📊 Analytics Ready")
 
 def render_pdf_upload_section(config):
     """Render PDF upload and processing section"""
@@ -497,7 +527,7 @@ def render_account_summary_section(config):
             display_account_summary_results(st.session_state.last_account_summary)
 
 def clean_text_for_display(text: str) -> str:
-    """Clean and format text for better display in Streamlit using modern LLM approach"""
+    """Clean and format text for better display in Streamlit using reliable LLM approach"""
     if not text:
         return ""
     
@@ -928,21 +958,24 @@ def display_account_summary_results(summary_data):
     if key_insights:
         st.markdown("### 🔍 Key Insights from Notes")
         for insight in key_insights:
-            st.markdown(f"• {insight}")
+            cleaned_insight = clean_text_for_display(insight)
+            st.markdown(f"• {cleaned_insight}")
     
     # System Recommendations
     recommendations = summary_data.get('recommendations', [])
     if recommendations:
         st.markdown("### 🎯 System Recommendations")
         for rec in recommendations:
-            st.markdown(f"• {rec}")
+            cleaned_rec = clean_text_for_display(rec)
+            st.markdown(f"• {cleaned_rec}")
     
     # System Risk Assessment
     risk_factors = summary_data.get('risk_factors', [])
     if risk_factors:
         st.markdown("### ⚠️ System Risk Assessment")
         for risk in risk_factors:
-            st.markdown(f"• {risk}")
+            cleaned_risk = clean_text_for_display(risk)
+            st.markdown(f"• {cleaned_risk}")
     
     # Export options
     st.markdown("### 📤 Export Options")
@@ -972,13 +1005,13 @@ def display_account_summary_results(summary_data):
 - **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ## Executive Summary
-{summary_data.get('summary', {}).get('executive_summary', 'N/A')}
+{clean_text_for_display(summary_data.get('summary', {}).get('executive_summary', 'N/A'))}
 
 ## Business Insights
-{chr(10).join([f"- {insight}" for insight in summary_data.get('summary', {}).get('business_insights', [])])}
+{chr(10).join([f"- {clean_text_for_display(insight)}" for insight in summary_data.get('summary', {}).get('business_insights', [])])}
 
 ## Recommendations
-{chr(10).join([f"- {rec}" for rec in summary_data.get('recommendations', [])])}
+{chr(10).join([f"- {clean_text_for_display(rec)}" for rec in summary_data.get('recommendations', [])])}
 """
             
             st.download_button(
@@ -1032,6 +1065,243 @@ def render_advanced_features():
             status = st.session_state.account_summary_service.get_service_status()
             st.json(status)
 
+def render_segmentation_section(config):
+    """Render customer segmentation section"""
+    st.header("🎯 Real-Time Customer Segmentation & Propensity Scoring")
+    st.markdown("Advanced RFM analysis, behavioral segmentation, and campaign targeting powered by Snowflake data.")
+    
+    # Initialize segmentation services
+    if not st.session_state.segmentation_engine:
+        with st.spinner("Initializing segmentation engine..."):
+            try:
+                sf_manager = SnowflakeManager()
+                if sf_manager.connect():
+                    st.session_state.segmentation_engine = RealTimeSegmentationEngine(sf_manager)
+                    st.session_state.segmentation_agent = SegmentationAgent(sf_manager)
+                    st.success("✅ Segmentation engine initialized successfully!")
+                else:
+                    st.error("❌ Failed to connect to Snowflake")
+                    return
+            except Exception as e:
+                st.error(f"❌ Error initializing segmentation engine: {str(e)}")
+                return
+    
+    # Segmentation controls
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        lookback_days = st.slider("Analysis Period (Days)", min_value=30, max_value=730, value=365, step=30)
+    
+    with col2:
+        if st.button("🔄 Generate Segments", type="primary"):
+            with st.spinner("Generating comprehensive segmentation analysis..."):
+                try:
+                    st.session_state.segmentation_data = st.session_state.segmentation_engine.generate_comprehensive_segments(lookback_days)
+                    st.success("✅ Segmentation analysis completed!")
+                except Exception as e:
+                    st.error(f"❌ Error generating segments: {str(e)}")
+    
+    with col3:
+        if st.button("💾 Save to Snowflake"):
+            if st.session_state.segmentation_data:
+                with st.spinner("Saving to Snowflake..."):
+                    try:
+                        success = st.session_state.segmentation_engine.save_segments_to_snowflake(st.session_state.segmentation_data)
+                        if success:
+                            st.success("✅ Data saved to Snowflake!")
+                        else:
+                            st.error("❌ Failed to save to Snowflake")
+                    except Exception as e:
+                        st.error(f"❌ Error saving to Snowflake: {str(e)}")
+            else:
+                st.warning("⚠️ No segmentation data to save")
+    
+    # Display results if available
+    if st.session_state.segmentation_data:
+        display_segmentation_results(st.session_state.segmentation_data)
+    else:
+        st.info("👆 Click 'Generate Segments' to start the analysis")
+
+def display_segmentation_results(segmentation_data):
+    """Display segmentation analysis results"""
+    
+    # Overview metrics
+    if 'rfm_analysis' in segmentation_data:
+        rfm_df = segmentation_data['rfm_analysis']
+        
+        st.subheader("📊 Segmentation Overview")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Accounts", f"{len(rfm_df):,}")
+        
+        with col2:
+            total_revenue = rfm_df['MONETARY_VALUE'].sum()
+            st.metric("Total Revenue", f"${total_revenue:,.0f}")
+        
+        with col3:
+            avg_rfm = rfm_df['RFM_SCORE_NUMERIC'].mean()
+            st.metric("Avg RFM Score", f"{avg_rfm:.2f}")
+        
+        with col4:
+            unique_segments = rfm_df['BEHAVIORAL_SEGMENT'].nunique()
+            st.metric("Segments Identified", unique_segments)
+        
+        # Segment distribution
+        st.subheader("🎯 Behavioral Segment Distribution")
+        
+        if 'segment_summary' in segmentation_data:
+            segment_summary = segmentation_data['segment_summary']
+            
+            # Create a bar chart
+            import plotly.express as px
+            
+            fig = px.bar(
+                segment_summary, 
+                x='BEHAVIORAL_SEGMENT', 
+                y='ACCOUNT_COUNT',
+                title="Account Distribution by Segment",
+                color='ACCOUNT_COUNT',
+                color_continuous_scale='Viridis'
+            )
+            fig.update_layout(xaxis_tickangle=-45)
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Segment details table
+            st.subheader("📋 Segment Details")
+            st.dataframe(
+                segment_summary[['BEHAVIORAL_SEGMENT', 'ACCOUNT_COUNT', 'AVG_MONETARY_VALUE', 'TOTAL_MONETARY_VALUE', 'SEGMENT_PRIORITY']],
+                use_container_width=True
+            )
+        
+        # RFM Analysis
+        st.subheader("📈 RFM Analysis")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Recency distribution
+            import plotly.express as px
+            fig_recency = px.histogram(rfm_df, x='RECENCY_DAYS', title="Recency Distribution (Days)")
+            st.plotly_chart(fig_recency, use_container_width=True)
+        
+        with col2:
+            # Frequency distribution
+            fig_frequency = px.histogram(rfm_df, x='FREQUENCY', title="Frequency Distribution")
+            st.plotly_chart(fig_frequency, use_container_width=True)
+        
+        # 3D RFM Scatter Plot
+        st.subheader("🎯 3D RFM Visualization")
+        
+        import plotly.graph_objects as go
+        
+        fig_3d = go.Figure(data=[go.Scatter3d(
+            x=rfm_df['RECENCY_DAYS'],
+            y=rfm_df['FREQUENCY'],
+            z=rfm_df['MONETARY_VALUE'],
+            mode='markers',
+            marker=dict(
+                size=8,
+                color=rfm_df['RFM_SCORE_NUMERIC'],
+                colorscale='Viridis',
+                showscale=True,
+                colorbar=dict(title="RFM Score")
+            ),
+            text=rfm_df['ACCOUNT_NAME'],
+            hovertemplate='<b>%{text}</b><br>' +
+                          'Recency: %{x} days<br>' +
+                          'Frequency: %{y}<br>' +
+                          'Monetary: $%{z:,.0f}<br>' +
+                          '<extra></extra>'
+        )])
+        
+        fig_3d.update_layout(
+            title="3D RFM Analysis",
+            scene=dict(
+                xaxis_title="Recency (Days)",
+                yaxis_title="Frequency",
+                zaxis_title="Monetary Value ($)"
+            )
+        )
+        
+        st.plotly_chart(fig_3d, use_container_width=True)
+        
+        # Business Opportunities
+        st.subheader("💰 Business Opportunities")
+        
+        if st.button("🔍 Identify High-Value Opportunities"):
+            with st.spinner("Analyzing opportunities..."):
+                try:
+                    opportunities = st.session_state.segmentation_agent.identify_high_value_opportunities()
+                    
+                    if 'opportunities' in opportunities:
+                        opp_data = opportunities['opportunities']
+                        
+                        # At-risk customers
+                        if opp_data.get('at_risk_high_value'):
+                            st.subheader("⚠️ At-Risk High-Value Customers")
+                            at_risk_df = pd.DataFrame(opp_data['at_risk_high_value'])
+                            st.dataframe(at_risk_df, use_container_width=True)
+                        
+                        # New customer potential
+                        if opp_data.get('promising_new_customers'):
+                            st.subheader("🌟 Promising New Customers")
+                            new_cust_df = pd.DataFrame(opp_data['promising_new_customers'])
+                            st.dataframe(new_cust_df, use_container_width=True)
+                        
+                        # Expansion opportunities
+                        if opp_data.get('champions_for_expansion'):
+                            st.subheader("🚀 Champions for Expansion")
+                            expansion_df = pd.DataFrame(opp_data['champions_for_expansion'])
+                            st.dataframe(expansion_df, use_container_width=True)
+                        
+                        # Recommendations
+                        if 'recommendations' in opportunities:
+                            st.subheader("📋 Strategic Recommendations")
+                            for rec in opportunities['recommendations']:
+                                st.info(f"**{rec['priority']} Priority - {rec['category']}**: {rec['action']}")
+                                st.caption(f"Expected Impact: {rec['expected_impact']} | Timeline: {rec['timeline']}")
+                    
+                except Exception as e:
+                    st.error(f"❌ Error analyzing opportunities: {str(e)}")
+        
+        # Campaign Targeting
+        st.subheader("🎯 Campaign Targeting")
+        
+        campaign_type = st.selectbox(
+            "Select Campaign Type",
+            ["promotional", "premium", "retention", "acquisition"]
+        )
+        
+        if st.button("🎯 Generate Campaign Targeting"):
+            with st.spinner("Generating campaign targeting recommendations..."):
+                try:
+                    targeting = st.session_state.segmentation_agent.generate_campaign_targeting_recommendations(campaign_type)
+                    
+                    if 'primary_targets' in targeting:
+                        st.subheader(f"🎯 {campaign_type.title()} Campaign Targeting")
+                        
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.subheader("Primary Targets")
+                            primary_df = pd.DataFrame(targeting['primary_targets'])
+                            st.dataframe(primary_df, use_container_width=True)
+                        
+                        with col2:
+                            st.subheader("Secondary Targets")
+                            secondary_df = pd.DataFrame(targeting['secondary_targets'])
+                            st.dataframe(secondary_df, use_container_width=True)
+                        
+                        # Targeting summary
+                        if 'targeting_summary' in targeting:
+                            summary = targeting['targeting_summary']
+                            st.info(f"**Total Reach**: {summary['total_reach']} accounts ({summary['primary_count']} primary + {summary['secondary_count']} secondary)")
+                    
+                except Exception as e:
+                    st.error(f"❌ Error generating campaign targeting: {str(e)}")
+
 def main():
     """Main application function"""
     # Initialize session state
@@ -1048,7 +1318,7 @@ def main():
     render_status_panel()
     
     # Main content
-    tab1, tab2, tab3, tab4 = st.tabs(["📄 Upload PDF", "💬 Chat", "📊 Account Summary", "🔧 Advanced"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📄 Upload PDF", "💬 Chat", "📊 Account Summary", "🎯 Customer Segmentation", "🔧 Advanced"])
     
     with tab1:
         render_pdf_upload_section(config)
@@ -1060,6 +1330,9 @@ def main():
         render_account_summary_section(config)
     
     with tab4:
+        render_segmentation_section(config)
+    
+    with tab5:
         render_advanced_features()
     
     # Footer

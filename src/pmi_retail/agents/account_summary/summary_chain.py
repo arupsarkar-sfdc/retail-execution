@@ -7,7 +7,7 @@ import os
 from typing import Dict, List, Optional, Any
 import logging
 from datetime import datetime
-from .modern_text_formatter import ModernTextFormatter
+from .modern_text_formatter import ReliableTextFormatter
 
 try:
     from langchain_openai import ChatOpenAI
@@ -92,20 +92,20 @@ class AccountSummaryChain:
             logger.error(f"❌ Error initializing OpenAI embeddings: {str(e)}")
     
     def _initialize_text_formatter(self):
-        """Initialize Modern Text Formatter"""
+        """Initialize Reliable Text Formatter"""
         try:
             if not self.api_key:
                 logger.error("OpenAI API key not found. Cannot initialize text formatter.")
                 return
             
-            self.text_formatter = ModernTextFormatter(
-                model_name=self.model_name, 
-                temperature=0.1
+            self.text_formatter = ReliableTextFormatter(
+                model_name=self.model_name,
+                api_key=self.api_key
             )
-            logger.info("✅ Modern Text Formatter initialized")
+            logger.info("✅ Reliable Text Formatter initialized")
             
         except Exception as e:
-            logger.error(f"❌ Error initializing Modern Text Formatter: {str(e)}")
+            logger.error(f"❌ Error initializing Reliable Text Formatter: {str(e)}")
             self.text_formatter = None
     
     def create_vectorstore(self, documents: List[Document]) -> Optional[FAISS]:
@@ -544,17 +544,17 @@ Generate a comprehensive, well-structured analysis that will help sales and acco
             return items
     
     def _clean_text(self, text: str) -> str:
-        """Clean and format text for better readability using modern LLM approach"""
+        """Clean and format text for better readability using reliable LLM approach"""
         if not text:
             return ""
         
         # Remove extra whitespace
         text = ' '.join(text.split())
         
-        # Use modern LLM-based text formatter if available
+        # Use reliable LLM-based text formatter if available
         if self.text_formatter:
             try:
-                return self.text_formatter.format_with_llm(text)
+                return self.text_formatter.format_text(text, show_progress=False)
             except Exception as e:
                 logger.warning(f"LLM text formatting failed, falling back to regex: {e}")
         

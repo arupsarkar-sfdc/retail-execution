@@ -33,7 +33,16 @@ A comprehensive workshop demonstrating retail execution capabilities through Mas
 - **`uv run streamlit run src/app.py --server.headless true --server.port 8501`** - Launch integrated AI dashboard
   - 📄 PDF Document Chat with AI
   - 📊 AI-Powered Account Summary Generation
+  - 🎯 Real-Time Customer Segmentation & Propensity Scoring
   - 🔍 Advanced Analytics and Insights
+
+### Customer Segmentation & Analytics
+- **`uv run pmi-segmentation analyze [--lookback-days 365]`** - Run comprehensive RFM analysis
+- **`uv run pmi-segmentation account-profile <account_id>`** - Get detailed account profile
+- **`uv run pmi-segmentation opportunities`** - Identify high-value business opportunities
+- **`uv run pmi-segmentation campaign-targeting <type>`** - Generate campaign targeting recommendations
+- **`uv run pmi-segmentation dashboard`** - Launch interactive Streamlit dashboard
+- **`uv run pmi-segmentation status`** - Check segmentation system status
 
 ### Data Scale Options
 - **small**: 30 accounts, 20 products, 3 months history
@@ -74,6 +83,16 @@ A comprehensive workshop demonstrating retail execution capabilities through Mas
 - **Vector Search**: FAISS-based semantic search for relevant content
 - **Conversational AI**: Chat with document content using OpenAI models
 - **Source Attribution**: Shows relevant document sections for each response
+
+### Real-Time Customer Segmentation & Propensity Scoring
+- **RFM Analysis**: Advanced Recency, Frequency, Monetary analysis using complex Snowflake SQL
+- **Behavioral Segmentation**: 10 distinct customer segments (Champions, At Risk, New Customers, etc.)
+- **Product Propensity Scoring**: Category and brand affinity calculations with machine learning
+- **Engagement Metrics**: Campaign response, loyalty program participation, channel diversity analysis
+- **Campaign Targeting**: Automated recommendations by campaign type (promotional, premium, retention, acquisition)
+- **3D Visualizations**: Interactive Plotly charts showing customer distribution and RFM patterns
+- **Business Intelligence**: High-value opportunity identification and strategic recommendations
+- **Real-Time Processing**: Dynamic segmentation based on configurable lookback periods
 
 ### Requirements
 - **OpenAI API Key**: Required for AI functionality
