@@ -132,25 +132,25 @@ tests/
 
 ```mermaid
 graph TD
-    A[Raw Account/Contact Records] --> B[Identity Resolution Engine]
+    A["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Raw Account/Contact Records</span>"] --> B["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Identity Resolution Engine</span>"]
     
-    B --> C[Accounts Resolution Logic]
-    B --> D[Contacts Resolution Logic]
+    B --> C["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Accounts Resolution Logic</span>"]
+    B --> D["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Contacts Resolution Logic</span>"]
     
-    C --> E[ENTERPRISE_ID Matching Algorithm]
-    E --> F[Group Accounts by ENTERPRISE_ID]
-    F --> G[Generate Unified GUID for Groups]
+    C --> E["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>ENTERPRISE_ID Matching Algorithm</span>"]
+    E --> F["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Group Accounts by ENTERPRISE_ID</span>"]
+    F --> G["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Generate Unified GUID for Groups</span>"]
     
-    D --> H[Fuzzy Matching Algorithm]
-    H --> I[Calculate Identity Scores]
-    I --> J[Apply Similarity Threshold]
-    J --> K[Group Contacts by Similarity]
-    K --> L[Generate Unified GUID for Groups]
+    D --> H["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Fuzzy Matching Algorithm</span>"]
+    H --> I["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Calculate Identity Scores</span>"]
+    I --> J["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Apply Similarity Threshold</span>"]
+    J --> K["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Group Contacts by Similarity</span>"]
+    K --> L["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Generate Unified GUID for Groups</span>"]
     
-    G --> M[Account Identity Groups]
-    L --> N[Contact Identity Groups]
+    G --> M["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Account Identity Groups</span>"]
+    L --> N["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Contact Identity Groups</span>"]
     
-    M --> O[Identity Resolution Results]
+    M --> O["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Identity Resolution Results</span>"]
     N --> O
 ```
 

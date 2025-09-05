@@ -195,26 +195,26 @@ recommendations = agent.analyze_account_cross_sell_opportunities(account_id)
 
 ```mermaid
 graph TD
-    A[Snowflake Database] --> B[Cross-Sell Engine]
-    B --> C[Market Basket Analysis]
-    B --> D[Product Affinity Matrix]
-    B --> E[Promotional Impact Analysis]
+    A["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Snowflake Database</span>"] --> B["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Cross-Sell Engine</span>"]
+    B --> C["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Market Basket Analysis</span>"]
+    B --> D["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Product Affinity Matrix</span>"]
+    B --> E["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Promotional Impact Analysis</span>"]
     
-    C --> F[Association Rules]
-    D --> G[Product Similarity Scores]
-    E --> H[Campaign Performance]
+    C --> F["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Association Rules</span>"]
+    D --> G["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Product Similarity Scores</span>"]
+    E --> H["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Campaign Performance</span>"]
     
-    F --> I[Account Recommendation Engine]
+    F --> I["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Account Recommendation Engine</span>"]
     G --> I
     H --> I
     
-    I --> J[Personalized Recommendations]
-    J --> K[Streamlit Dashboard]
-    J --> L[CLI Interface]
+    I --> J["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Personalized Recommendations</span>"]
+    J --> K["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Streamlit Dashboard</span>"]
+    J --> L["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>CLI Interface</span>"]
     
-    M[Account Purchase History] --> I
-    N[Customer Segment] --> I
-    O[Active Campaigns] --> I
+    M["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Account Purchase History</span>"] --> I
+    N["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Customer Segment</span>"] --> I
+    O["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Active Campaigns</span>"] --> I
 ```
 
 ### Database Schema Integration
