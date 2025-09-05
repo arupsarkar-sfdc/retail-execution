@@ -139,34 +139,55 @@ tests/
 
 ```mermaid
 graph TD
-    A["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>User Selects Account from Dropdown</span>"] --> B["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Streamlit App: render_account_summary_section</span>"]
-    B --> C["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Account Summary Service Initialization</span>"]
-    C --> D["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Account Data Aggregator: get_account_summary_data</span>"]
-    D --> E["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Snowflake Database Queries</span>"]
+    A["User Selects Account from Dropdown"] --> B["Streamlit App: render_account_summary_section"]
+    B --> C["Account Summary Service Initialization"]
+    C --> D["Account Data Aggregator: get_account_summary_data"]
+    D --> E["Snowflake Database Queries"]
     
-    E --> F["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>ACCOUNTS Table Query</span>"]
-    E --> G["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>CONTACTS Table Query</span>"]
-    E --> H["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>NOTES Table Query</span>"]
-    E --> I["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>TRANSACTIONS Table Query</span>"]
-    E --> J["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>CAMPAIGNS Table Query</span>"]
+    E --> F["ACCOUNTS Table Query"]
+    E --> G["CONTACTS Table Query"]
+    E --> H["NOTES Table Query"]
+    E --> I["TRANSACTIONS Table Query"]
+    E --> J["CAMPAIGNS Table Query"]
     
-    F --> K["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Account Details Dict</span>"]
-    G --> L["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Contacts List</span>"]
-    H --> M["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Notes List</span>"]
-    I --> N["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Transactions List</span>"]
-    J --> O["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Campaigns List</span>"]
+    F --> K["Account Details Dict"]
+    G --> L["Contacts List"]
+    H --> M["Notes List"]
+    I --> N["Transactions List"]
+    J --> O["Campaigns List"]
     
-    K --> P["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Account Data Aggregation</span>"]
+    K --> P["Account Data Aggregation"]
     L --> P
     M --> P
     N --> P
     O --> P
     
-    P --> Q["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Account Notes Processor: process_account_notes</span>"]
-    Q --> R["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>LangChain Documents Creation</span>"]
-    R --> S["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>FAISS VectorStore Creation</span>"]
+    P --> Q["Account Notes Processor: process_account_notes"]
+    Q --> R["LangChain Documents Creation"]
+    R --> S["FAISS VectorStore Creation"]
     
-    S --> T["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Account Summary Chain: create_account_summary</span>"]
+    S --> T["Account Summary Chain: create_account_summary"]
+
+    style A fill:#e8f5e8,color:#2e7d32
+    style B fill:#e8f5e8,color:#2e7d32
+    style C fill:#ffebee,color:#c62828
+    style D fill:#ffebee,color:#c62828
+    style E fill:#ffebee,color:#c62828
+    style F fill:#e3f2fd,color:#1565c0
+    style G fill:#e3f2fd,color:#1565c0
+    style H fill:#e3f2fd,color:#1565c0
+    style I fill:#e3f2fd,color:#1565c0
+    style J fill:#e3f2fd,color:#1565c0
+    style K fill:#e3f2fd,color:#1565c0
+    style L fill:#e3f2fd,color:#1565c0
+    style M fill:#e3f2fd,color:#1565c0
+    style N fill:#e3f2fd,color:#1565c0
+    style O fill:#e3f2fd,color:#1565c0
+    style P fill:#e3f2fd,color:#1565c0
+    style Q fill:#e3f2fd,color:#1565c0
+    style R fill:#e3f2fd,color:#1565c0
+    style S fill:#e3f2fd,color:#1565c0
+    style T fill:#ffebee,color:#c62828
     P --> T
     T --> U[OpenAI GPT-4 API Call]
     U --> V[AI-Generated Summary Text]

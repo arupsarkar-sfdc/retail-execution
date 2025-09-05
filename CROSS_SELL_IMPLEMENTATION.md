@@ -195,26 +195,42 @@ recommendations = agent.analyze_account_cross_sell_opportunities(account_id)
 
 ```mermaid
 graph TD
-    A["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Snowflake Database</span>"] --> B["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Cross-Sell Engine</span>"]
-    B --> C["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Market Basket Analysis</span>"]
-    B --> D["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Product Affinity Matrix</span>"]
-    B --> E["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Promotional Impact Analysis</span>"]
+    A["Snowflake Database"] --> B["Cross-Sell Engine"]
+    B --> C["Market Basket Analysis"]
+    B --> D["Product Affinity Matrix"]
+    B --> E["Promotional Impact Analysis"]
     
-    C --> F["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Association Rules</span>"]
-    D --> G["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Product Similarity Scores</span>"]
-    E --> H["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Campaign Performance</span>"]
+    C --> F["Association Rules"]
+    D --> G["Product Similarity Scores"]
+    E --> H["Campaign Performance"]
     
-    F --> I["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Account Recommendation Engine</span>"]
+    F --> I["Account Recommendation Engine"]
     G --> I
     H --> I
     
-    I --> J["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Personalized Recommendations</span>"]
-    J --> K["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Streamlit Dashboard</span>"]
-    J --> L["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>CLI Interface</span>"]
+    I --> J["Personalized Recommendations"]
+    J --> K["Streamlit Dashboard"]
+    J --> L["CLI Interface"]
     
-    M["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Account Purchase History</span>"] --> I
-    N["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Customer Segment</span>"] --> I
-    O["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Active Campaigns</span>"] --> I
+    M["Account Purchase History"] --> I
+    N["Customer Segment"] --> I
+    O["Active Campaigns"] --> I
+
+    style A fill:#ffebee,color:#c62828
+    style B fill:#ffebee,color:#c62828
+    style C fill:#e3f2fd,color:#1565c0
+    style D fill:#e3f2fd,color:#1565c0
+    style E fill:#e3f2fd,color:#1565c0
+    style F fill:#e3f2fd,color:#1565c0
+    style G fill:#e3f2fd,color:#1565c0
+    style H fill:#e3f2fd,color:#1565c0
+    style I fill:#ffebee,color:#c62828
+    style J fill:#e8f5e8,color:#2e7d32
+    style K fill:#e8f5e8,color:#2e7d32
+    style L fill:#e3f2fd,color:#1565c0
+    style M fill:#e3f2fd,color:#1565c0
+    style N fill:#e3f2fd,color:#1565c0
+    style O fill:#e3f2fd,color:#1565c0
 ```
 
 ### Database Schema Integration

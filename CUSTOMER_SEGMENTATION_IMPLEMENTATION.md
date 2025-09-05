@@ -46,36 +46,64 @@ This document provides a comprehensive technical implementation guide for the Re
 
 ```mermaid
 graph TD
-    A["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>User Launches Dashboard</span>"] --> B["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Initialize Segmentation Engine</span>"]
-    B --> C["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Connect to Snowflake</span>"]
-    C --> D["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>User Selects Analysis Period</span>"]
-    D --> E["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Generate Segments Button</span>"]
-    E --> F["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>RFM Analysis Query</span>"]
-    F --> G["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Behavioral Segmentation</span>"]
-    G --> H["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Engagement Metrics</span>"]
-    H --> I["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Product Propensity Scoring</span>"]
-    I --> J["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Comprehensive Results</span>"]
-    J --> K["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>3D Visualizations</span>"]
-    K --> L["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Business Opportunities</span>"]
-    L --> M["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Campaign Targeting</span>"]
-    M --> N["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Save to Snowflake</span>"]
+    A["User Launches Dashboard"] --> B["Initialize Segmentation Engine"]
+    B --> C["Connect to Snowflake"]
+    C --> D["User Selects Analysis Period"]
+    D --> E["Generate Segments Button"]
+    E --> F["RFM Analysis Query"]
+    F --> G["Behavioral Segmentation"]
+    G --> H["Engagement Metrics"]
+    H --> I["Product Propensity Scoring"]
+    I --> J["Comprehensive Results"]
+    J --> K["3D Visualizations"]
+    K --> L["Business Opportunities"]
+    L --> M["Campaign Targeting"]
+    M --> N["Save to Snowflake"]
+
+    style A fill:#e8f5e8,color:#2e7d32
+    style B fill:#ffebee,color:#c62828
+    style C fill:#ffebee,color:#c62828
+    style D fill:#e3f2fd,color:#1565c0
+    style E fill:#e3f2fd,color:#1565c0
+    style F fill:#ffebee,color:#c62828
+    style G fill:#e3f2fd,color:#1565c0
+    style H fill:#e3f2fd,color:#1565c0
+    style I fill:#e3f2fd,color:#1565c0
+    style J fill:#e8f5e8,color:#2e7d32
+    style K fill:#e8f5e8,color:#2e7d32
+    style L fill:#e8f5e8,color:#2e7d32
+    style M fill:#e8f5e8,color:#2e7d32
+    style N fill:#e3f2fd,color:#1565c0
 ```
 
 ### Service Orchestration
 
 ```mermaid
 graph LR
-    A["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Streamlit UI</span>"] --> B["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>SegmentationEngine</span>"]
-    B --> C["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>SnowflakeManager</span>"]
-    C --> D["<span style='background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;'>Snowflake Database</span>"]
-    B --> E["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>SegmentationAgent</span>"]
-    E --> F["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Business Intelligence</span>"]
-    F --> G["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Opportunity Analysis</span>"]
-    G --> H["<span style='background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;'>Campaign Recommendations</span>"]
-    B --> I["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Data Processing</span>"]
-    I --> J["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>RFM Calculations</span>"]
-    I --> K["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Segment Assignment</span>"]
-    I --> L["<span style='background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;'>Propensity Scoring</span>"]
+    A["Streamlit UI"] --> B["SegmentationEngine"]
+    B --> C["SnowflakeManager"]
+    C --> D["Snowflake Database"]
+    B --> E["SegmentationAgent"]
+    E --> F["Business Intelligence"]
+    F --> G["Opportunity Analysis"]
+    G --> H["Campaign Recommendations"]
+    B --> I["Data Processing"]
+    I --> J["RFM Calculations"]
+    I --> K["Segment Assignment"]
+    I --> L["Propensity Scoring"]
+
+    style A fill:#e8f5e8,color:#2e7d32
+    style B fill:#ffebee,color:#c62828
+    style C fill:#e3f2fd,color:#1565c0
+    style D fill:#ffebee,color:#c62828
+    style E fill:#e3f2fd,color:#1565c0
+    style F fill:#e8f5e8,color:#2e7d32
+    style G fill:#e8f5e8,color:#2e7d32
+    style H fill:#e8f5e8,color:#2e7d32
+    style I fill:#e3f2fd,color:#1565c0
+    style J fill:#e3f2fd,color:#1565c0
+    style K fill:#e3f2fd,color:#1565c0
+    style L fill:#e3f2fd,color:#1565c0
 ```
 
 ### Data Aggregation Process
