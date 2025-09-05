@@ -77,102 +77,102 @@ This diagram illustrates the overall integration of Salesforce Data Cloud and Ag
 ```mermaid
 graph TD
     subgraph "B2C Sources"
-        DCX[DCX (Digital Consumer Experience)]
-        SFMC[Salesforce Marketing Cloud]
-        SVC[Salesforce Service Cloud]
-        HYBRIS[Hybris Commerce]
-        ADOBE_TARGET[Adobe Target]
-        LEGACY_DCS[Legacy Systems (DCS, DC1)]
-        WEB_MOBILE[Web & Mobile Data]
-        SNOWFLAKE_ANALYTICS[Snowflake (Analytics/Data Science)]
+        A[DCX Digital Consumer Experience]
+        B[Salesforce Marketing Cloud]
+        C[Salesforce Service Cloud]
+        D[Hybris Commerce]
+        E[Adobe Target]
+        F[Legacy Systems DCS DC1]
+        G[Web Mobile Data]
+        H[Snowflake Analytics]
     end
 
     subgraph "Salesforce Data Cloud"
-        DC_INGESTION[Data Ingestion (Streaming/Batch/CDC)]
-        DC_MODEL[Data Model Objects (Canonical)]
-        DC_ID_RES[Identity Resolution (Persona/Identity)]
-        DC_CALC_INSIGHT[Calculated Insights (Real-time/Batch)]
-        DC_SEGMENT[Segmentation Engine]
-        DC_TRANSFORM[Data Transformation]
-        DC_SEMANTIC[Semantic Model]
-        DC_VECTOR_DB[Vector Database]
+        I[Data Ingestion]
+        J[Data Model Objects]
+        K[Identity Resolution]
+        L[Calculated Insights]
+        M[Segmentation Engine]
+        N[Data Transformation]
+        O[Semantic Model]
+        P[Vector Database]
     end
 
-    subgraph "Agentforce (AI-Powered Agents)"
-        AF_PREDICTIVE[Predictive AI (NBA, Propensity)]
-        AF_FOUNDATIONAL[Foundational AI (Generative, NLP)]
-        AF_ACTIONS[AI-Driven Actions]
+    subgraph "Agentforce AI Agents"
+        Q[Predictive AI NBA]
+        R[Foundational AI NLP]
+        S[AI Driven Actions]
     end
 
-    subgraph "B2C Activation & Experience"
-        B2C_PERSONALIZATION[Personalization Engine]
-        B2C_CAMPAIGNS[Marketing Campaigns (SFMC)]
-        B2C_SERVICE[Intelligent Service (SvC)]
-        B2C_COMMERCE[Commerce Experience (Hybris)]
-        B2C_ANALYTICS[Advanced Analytics & Reporting]
-        B2C_EXTERNAL_ACTIVATION[External Activation (Adobe Target, DMP)]
+    subgraph "B2C Activation Experience"
+        T[Personalization Engine]
+        U[Marketing Campaigns]
+        V[Intelligent Service]
+        W[Commerce Experience]
+        X[Advanced Analytics]
+        Y[External Activation]
     end
 
-    DCX --> DC_INGESTION
-    SFMC --> DC_INGESTION
-    SVC --> DC_INGESTION
-    HYBRIS --> DC_INGESTION
-    ADOBE_TARGET --> DC_INGESTION
-    LEGACY_DCS --> DC_INGESTION
-    WEB_MOBILE --> DC_INGESTION
-    SNOWFLAKE_ANALYTICS --> DC_INGESTION
+    A --> I
+    B --> I
+    C --> I
+    D --> I
+    E --> I
+    F --> I
+    G --> I
+    H --> I
 
-    DC_INGESTION --> DC_MODEL
-    DC_MODEL --> DC_ID_RES
-    DC_ID_RES --> DC_CALC_INSIGHT
-    DC_CALC_INSIGHT --> DC_SEGMENT
-    DC_SEGMENT --> B2C_CAMPAIGNS
-    DC_SEGMENT --> B2C_PERSONALIZATION
-    DC_SEGMENT --> B2C_EXTERNAL_ACTIVATION
+    I --> J
+    J --> K
+    K --> L
+    L --> M
+    M --> U
+    M --> T
+    M --> Y
 
-    DC_ID_RES --> AF_PREDICTIVE
-    DC_CALC_INSIGHT --> AF_PREDICTIVE
-    DC_MODEL --> AF_FOUNDATIONAL
-    DC_VECTOR_DB --> AF_FOUNDATIONAL
+    K --> Q
+    L --> Q
+    J --> R
+    P --> R
 
-    AF_PREDICTIVE --> AF_ACTIONS
-    AF_FOUNDATIONAL --> AF_ACTIONS
-    AF_ACTIONS --> B2C_PERSONALIZATION
-    AF_ACTIONS --> B2C_SERVICE
-    AF_ACTIONS --> B2C_COMMERCE
+    Q --> S
+    R --> S
+    S --> T
+    S --> V
+    S --> W
 
-    DC_MODEL --> B2C_ANALYTICS
-    DC_CALC_INSIGHT --> B2C_ANALYTICS
-    DC_SEMANTIC --> B2C_ANALYTICS
+    J --> X
+    L --> X
+    O --> X
 
-    style DCX fill:#e3f2fd,color:#1565c0
-    style SFMC fill:#e3f2fd,color:#1565c0
-    style SVC fill:#e3f2fd,color:#1565c0
-    style HYBRIS fill:#e3f2fd,color:#1565c0
-    style ADOBE_TARGET fill:#e3f2fd,color:#1565c0
-    style LEGACY_DCS fill:#e3f2fd,color:#1565c0
-    style WEB_MOBILE fill:#e3f2fd,color:#1565c0
-    style SNOWFLAKE_ANALYTICS fill:#e3f2fd,color:#1565c0
+    style A fill:#e3f2fd,color:#1565c0
+    style B fill:#e3f2fd,color:#1565c0
+    style C fill:#e3f2fd,color:#1565c0
+    style D fill:#e3f2fd,color:#1565c0
+    style E fill:#e3f2fd,color:#1565c0
+    style F fill:#e3f2fd,color:#1565c0
+    style G fill:#e3f2fd,color:#1565c0
+    style H fill:#e3f2fd,color:#1565c0
 
-    style DC_INGESTION fill:#ffebee,color:#c62828
-    style DC_MODEL fill:#ffebee,color:#c62828
-    style DC_ID_RES fill:#ffebee,color:#c62828
-    style DC_CALC_INSIGHT fill:#ffebee,color:#c62828
-    style DC_SEGMENT fill:#ffebee,color:#c62828
-    style DC_TRANSFORM fill:#ffebee,color:#c62828
-    style DC_SEMANTIC fill:#ffebee,color:#c62828
-    style DC_VECTOR_DB fill:#ffebee,color:#c62828
+    style I fill:#ffebee,color:#c62828
+    style J fill:#ffebee,color:#c62828
+    style K fill:#ffebee,color:#c62828
+    style L fill:#ffebee,color:#c62828
+    style M fill:#ffebee,color:#c62828
+    style N fill:#ffebee,color:#c62828
+    style O fill:#ffebee,color:#c62828
+    style P fill:#ffebee,color:#c62828
 
-    style AF_PREDICTIVE fill:#e8f5e8,color:#2e7d32
-    style AF_FOUNDATIONAL fill:#e8f5e8,color:#2e7d32
-    style AF_ACTIONS fill:#e8f5e8,color:#2e7d32
+    style Q fill:#e8f5e8,color:#2e7d32
+    style R fill:#e8f5e8,color:#2e7d32
+    style S fill:#e8f5e8,color:#2e7d32
 
-    style B2C_PERSONALIZATION fill:#e3f2fd,color:#1565c0
-    style B2C_CAMPAIGNS fill:#e3f2fd,color:#1565c0
-    style B2C_SERVICE fill:#e3f2fd,color:#1565c0
-    style B2C_COMMERCE fill:#e3f2fd,color:#1565c0
-    style B2C_ANALYTICS fill:#e3f2fd,color:#1565c0
-    style B2C_EXTERNAL_ACTIVATION fill:#e3f2fd,color:#1565c0
+    style T fill:#e3f2fd,color:#1565c0
+    style U fill:#e3f2fd,color:#1565c0
+    style V fill:#e3f2fd,color:#1565c0
+    style W fill:#e3f2fd,color:#1565c0
+    style X fill:#e3f2fd,color:#1565c0
+    style Y fill:#e3f2fd,color:#1565c0
 ```
 
 ### **2. B2C Data Flow Architecture**
@@ -182,34 +182,34 @@ This diagram details the journey of B2C data from various sources through the Sa
 ```mermaid
 graph TD
     subgraph "B2C Data Sources"
-        A[DCX (Digital Consumer Experience)]
-        B[SFMC / SvC / Hybris]
-        C[Web / Mobile / Legacy Systems]
-        D[Snowflake (Existing Analytics)]
+        A[DCX Digital Consumer Experience]
+        B[SFMC Service Cloud Hybris]
+        C[Web Mobile Legacy Systems]
+        D[Snowflake Existing Analytics]
     end
 
-    subgraph "Salesforce Data Cloud Ingestion & Raw Layer"
-        E[Data Stream (Batch/Streaming/CDC)]
-        F[Data Lake (Raw Data - Similar to TD L0)]
+    subgraph "Data Cloud Ingestion Raw Layer"
+        E[Data Stream Batch Streaming CDC]
+        F[Data Lake Raw Data Similar to TD L0]
     end
 
-    subgraph "Salesforce Data Cloud Processing Layers"
-        G[Data Mapping & Transformation (Similar to TD Staging)]
-        H[Identity Resolution (Persona & Identity Unification)]
-        I[Data Model Objects (Canonical B2C Profile - Similar to TD L1/L2)]
-        J[Calculated Insights (Derived Attributes, Metrics)]
-        K[Segmentation Engine (Dynamic Audiences)]
-        L[Delta Processing & Change Data Capture (CDC)]
+    subgraph "Data Cloud Processing Layers"
+        G[Data Mapping Transformation]
+        H[Identity Resolution Persona Identity]
+        I[Data Model Objects Canonical Profile]
+        J[Calculated Insights Derived Attributes]
+        K[Segmentation Engine Dynamic Audiences]
+        L[Delta Processing Change Data Capture]
     end
 
-    subgraph "Salesforce Data Cloud Activation & Outbound"
-        M[Data Actions (Real-time Updates to CRM)]
+    subgraph "Data Cloud Activation Outbound"
+        M[Data Actions Real-time CRM Updates]
         N[Personalization Engine]
-        O[Marketing Cloud Activation (Campaigns)]
-        P[Service Cloud Integration (Intelligent Service)]
-        Q[Commerce Platform (Hybris) Integration]
-        R[External Activation (Adobe Target, DMP)]
-        S[Data Share (to Snowflake for Analytics)]
+        O[Marketing Cloud Activation Campaigns]
+        P[Service Cloud Integration]
+        Q[Commerce Platform Hybris Integration]
+        R[External Activation Adobe Target DMP]
+        S[Data Share to Snowflake Analytics]
     end
 
     A --> E
@@ -264,58 +264,58 @@ This diagram focuses on how Agentforce, powered by Data Cloud, drives intelligen
 
 ```mermaid
 graph TD
-    subgraph "Salesforce Data Cloud (Unified Customer Data)"
-        DC_PROFILE[Unified B2C Customer Profile (Persona)]
-        DC_INSIGHTS[Real-time Calculated Insights]
-        DC_SEGMENTS[Dynamic Segments]
-        DC_VECTOR_DB[Vector Database (Customer Interactions)]
+    subgraph "Data Cloud Unified Customer Data"
+        A[Unified B2C Customer Profile Persona]
+        B[Real-time Calculated Insights]
+        C[Dynamic Segments]
+        D[Vector Database Customer Interactions]
     end
 
-    subgraph "Agentforce (AI-Powered Agents)"
-        AF_PREDICTIVE[Predictive AI (NBA, Propensity Scoring)]
-        AF_FOUNDATIONAL[Foundational AI (Generative Content, NLP)]
-        AF_DECISION[AI Decision Engine]
-        AF_ACTIONS[AI-Driven Actions & Orchestration]
+    subgraph "Agentforce AI Powered Agents"
+        E[Predictive AI NBA Propensity Scoring]
+        F[Foundational AI Generative Content NLP]
+        G[AI Decision Engine]
+        H[AI Driven Actions Orchestration]
     end
 
     subgraph "B2C Engagement Channels"
-        SVC[Service Cloud (Intelligent Service)]
-        SFMC[Marketing Cloud (Personalized Campaigns)]
-        DCX[Digital Consumer Experience (Website/App)]
-        ADOBE_TARGET[Adobe Target (Real-time Personalization)]
-        HYBRIS[Hybris Commerce (Product Recommendations)]
+        I[Service Cloud Intelligent Service]
+        J[Marketing Cloud Personalized Campaigns]
+        K[Digital Consumer Experience Website App]
+        L[Adobe Target Real-time Personalization]
+        M[Hybris Commerce Product Recommendations]
     end
 
-    DC_PROFILE --> AF_PREDICTIVE
-    DC_INSIGHTS --> AF_PREDICTIVE
-    DC_SEGMENTS --> AF_PREDICTIVE
-    DC_VECTOR_DB --> AF_FOUNDATIONAL
+    A --> E
+    B --> E
+    C --> E
+    D --> F
 
-    AF_PREDICTIVE --> AF_DECISION
-    AF_FOUNDATIONAL --> AF_DECISION
-    AF_DECISION --> AF_ACTIONS
+    E --> G
+    F --> G
+    G --> H
 
-    AF_ACTIONS --> SVC
-    AF_ACTIONS --> SFMC
-    AF_ACTIONS --> DCX
-    AF_ACTIONS --> ADOBE_TARGET
-    AF_ACTIONS --> HYBRIS
+    H --> I
+    H --> J
+    H --> K
+    H --> L
+    H --> M
 
-    style DC_PROFILE fill:#ffebee,color:#c62828
-    style DC_INSIGHTS fill:#ffebee,color:#c62828
-    style DC_SEGMENTS fill:#ffebee,color:#c62828
-    style DC_VECTOR_DB fill:#ffebee,color:#c62828
+    style A fill:#ffebee,color:#c62828
+    style B fill:#ffebee,color:#c62828
+    style C fill:#ffebee,color:#c62828
+    style D fill:#ffebee,color:#c62828
 
-    style AF_PREDICTIVE fill:#e8f5e8,color:#2e7d32
-    style AF_FOUNDATIONAL fill:#e8f5e8,color:#2e7d32
-    style AF_DECISION fill:#e8f5e8,color:#2e7d32
-    style AF_ACTIONS fill:#e8f5e8,color:#2e7d32
+    style E fill:#e8f5e8,color:#2e7d32
+    style F fill:#e8f5e8,color:#2e7d32
+    style G fill:#e8f5e8,color:#2e7d32
+    style H fill:#e8f5e8,color:#2e7d32
 
-    style SVC fill:#e3f2fd,color:#1565c0
-    style SFMC fill:#e3f2fd,color:#1565c0
-    style DCX fill:#e3f2fd,color:#1565c0
-    style ADOBE_TARGET fill:#e3f2fd,color:#1565c0
-    style HYBRIS fill:#e3f2fd,color:#1565c0
+    style I fill:#e3f2fd,color:#1565c0
+    style J fill:#e3f2fd,color:#1565c0
+    style K fill:#e3f2fd,color:#1565c0
+    style L fill:#e3f2fd,color:#1565c0
+    style M fill:#e3f2fd,color:#1565c0
 ```
 
 ---
@@ -329,35 +329,35 @@ This diagram illustrates how Salesforce Data Cloud can completely replace the ex
 ```mermaid
 graph TD
     subgraph "B2C Data Sources"
-        A[DCX (Digital Consumer Experience)]
-        B[Legacy Systems (DCS, DC1, DCE2.0)]
+        A[DCX Digital Consumer Experience]
+        B[Legacy Systems DCS DC1 DCE2]
         C[Salesforce Marketing Cloud]
         D[Salesforce Service Cloud]
         E[Hybris Commerce]
         F[Adobe Target]
-        G[Web & Mobile Data (Cookies, Device IDs)]
-        H[External APIs (Gigya, Third-party)]
+        G[Web Mobile Data Cookies Device IDs]
+        H[External APIs Gigya Third-party]
     end
 
-    subgraph "Salesforce Data Cloud (Replaces All TD Layers)"
-        I[Data Ingestion (Streaming/Batch/CDC)]
-        J[Data Lake (Raw Data - Replaces TD L0)]
-        K[Data Transformation & Quality (Replaces TD Staging)]
-        L[Identity Resolution (Persona/Identity Unification)]
-        M[Unified Customer Profiles (Replaces TD L1/L2/L3)]
-        N[Calculated Insights & ML Models]
+    subgraph "Data Cloud Replaces All TD Layers"
+        I[Data Ingestion Streaming Batch CDC]
+        J[Data Lake Raw Data Replaces TD L0]
+        K[Data Transformation Quality Replaces TD Staging]
+        L[Identity Resolution Persona Identity Unification]
+        M[Unified Customer Profiles Replaces TD L1 L2 L3]
+        N[Calculated Insights ML Models]
         O[Real-time Segmentation Engine]
-        P[Delta Processing & CDC (Replaces TD Delta Logic)]
-        Q[Vector Database & AI Embeddings]
+        P[Delta Processing CDC Replaces TD Delta Logic]
+        Q[Vector Database AI Embeddings]
     end
 
-    subgraph "Data Cloud Activation & Analytics"
+    subgraph "Data Cloud Activation Analytics"
         R[Marketing Cloud Activation]
         S[Service Cloud Integration]
         T[Hybris Personalization]
         U[Adobe Target Segmentation]
         V[External DMP Activation]
-        W[Snowflake Data Share (Advanced Analytics)]
+        W[Snowflake Data Share Advanced Analytics]
         X[Real-time API Endpoints]
     end
 
