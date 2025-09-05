@@ -22,20 +22,20 @@ A comprehensive workshop demonstrating retail execution capabilities through Mas
 
 ## 🛠️ Available Commands
 
-### Database Setup & Management
-- **`uv run pmi-setup test-connection`** - Test Snowflake connection
-- **`uv run pmi-setup init-database [--drop]`** - Initialize database tables (use `--drop` to recreate)
-- **`uv run pmi-setup load-sample-data [--scale small|medium|large]`** - Load sample data
-- **`uv run pmi-setup test-queries`** - Run test queries to validate setup
-- **`uv run pmi-setup status`** - Check current setup status
+### <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 6px 12px; border-radius: 6px; color: #c62828; font-weight: bold;">Database Setup & Management</span>
+- <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">**`uv run pmi-setup test-connection`** - Test Snowflake connection</span>
+- <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">**`uv run pmi-setup init-database [--drop]`** - Initialize database tables (use `--drop` to recreate)</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**`uv run pmi-setup load-sample-data [--scale small|medium|large]`** - Load sample data</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**`uv run pmi-setup test-queries`** - Run test queries to validate setup</span>
+- <span style="background-color: #fff3e0; border: 2px solid #ff9800; padding: 4px 8px; border-radius: 4px; color: #e65100; font-weight: bold;">**`uv run pmi-setup status`** - Check current setup status</span>
 
-### AI Applications
-- **`uv run streamlit run src/app.py --server.headless true --server.port 8501`** - Launch integrated AI dashboard
-  - 📄 PDF Document Chat with AI
-  - 📊 AI-Powered Account Summary Generation
-  - 🎯 Real-Time Customer Segmentation & Propensity Scoring
-  - 🛒 Cross-Sell Optimization & Market Basket Analysis
-  - 🔍 Advanced Analytics and Insights
+### <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 6px 12px; border-radius: 6px; color: #2e7d32; font-weight: bold;">AI Applications</span>
+- <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**`uv run streamlit run src/app.py --server.headless true --server.port 8501`** - Launch integrated AI dashboard</span>
+  - <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">📄 PDF Document Chat with AI</span>
+  - <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">📊 AI-Powered Account Summary Generation</span>
+  - <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">🎯 Real-Time Customer Segmentation & Propensity Scoring</span>
+  - <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">🛒 Cross-Sell Optimization & Market Basket Analysis</span>
+  - <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">🔍 Advanced Analytics and Insights</span>
 
 ### Customer Segmentation & Analytics
 - **`uv run pmi-segmentation analyze [--lookback-days 365]`** - Run comprehensive RFM analysis

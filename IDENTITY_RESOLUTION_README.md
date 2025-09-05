@@ -38,16 +38,16 @@
 
 This repository includes **two separate identity resolution jobs** that demonstrate the capabilities you'd get with Salesforce Data Cloud + Agent Force using your **actual Snowflake data**:
 
-### **1. ACCOUNTS Identity Resolution Job** (`src/pmi_retail/scripts/identity_resolution/accounts_resolution.py`)
-- **Purpose**: Resolve duplicate accounts using exact ENTERPRISE_ID matching
-- **Data Source**: Your actual `ACCOUNTS` table in Snowflake
-- **Matching Criteria**: Exact match on ENTERPRISE_ID field
-- **Algorithms**: Exact string matching for ENTERPRISE_ID field
-- **Business Rules**: All accounts with same ENTERPRISE_ID are considered duplicates
-- **Output**: `ACCOUNTS_identity_resolution_YYYYMMDD_HHMMSS.csv`
+### **1. <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 6px 12px; border-radius: 6px; color: #c62828; font-weight: bold;">ACCOUNTS Identity Resolution Job</span>** (`src/pmi_retail/scripts/identity_resolution/accounts_resolution.py`)
+- <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">**Purpose**: Resolve duplicate accounts using exact ENTERPRISE_ID matching</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Data Source**: Your actual `ACCOUNTS` table in Snowflake</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Matching Criteria**: Exact match on ENTERPRISE_ID field</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Algorithms**: Exact string matching for ENTERPRISE_ID field</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Business Rules**: All accounts with same ENTERPRISE_ID are considered duplicates</span>
+- <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Output**: `ACCOUNTS_identity_resolution_YYYYMMDD_HHMMSS.csv`</span>
 
-### **2. CONTACTS Identity Resolution Job** (`src/pmi_retail/scripts/identity_resolution/contacts_resolution.py`)
-- **Purpose**: Resolve duplicate contacts using composite fuzzy matching rules
+### **2. <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 6px 12px; border-radius: 6px; color: #c62828; font-weight: bold;">CONTACTS Identity Resolution Job</span>** (`src/pmi_retail/scripts/identity_resolution/contacts_resolution.py`)
+- <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">**Purpose**: Resolve duplicate contacts using composite fuzzy matching rules</span>
 - **Data Source**: Your actual `CONTACTS` table in Snowflake
 - **Matching Criteria**: 
   1. Fuzzy First Name match (probability 0.8)

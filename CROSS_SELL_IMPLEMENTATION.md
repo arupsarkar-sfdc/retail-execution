@@ -6,29 +6,29 @@ Implement AI-powered Cross-Sell Optimization system using advanced market basket
 ## 🏗️ Implementation Status
 
 ### ✅ Phase 1: Foundation Setup
-- [x] Analyze existing data structure and requirements
-- [x] Design cross-sell optimization engine architecture
-- [x] Create project structure and organization
-- [x] Set up market basket analysis algorithms
+- [x] <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">Analyze existing data structure and requirements</span>
+- [x] <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Design cross-sell optimization engine architecture</span>
+- [x] <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Create project structure and organization</span>
+- [x] <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Set up market basket analysis algorithms</span>
 
 ### ✅ Phase 2: Core Components (Completed)
-- [x] Create Cross-Sell Optimization Engine
-- [x] Create Market Basket Analysis Engine
-- [x] Create Product Affinity Matrix Calculator
-- [x] Create Promotional Impact Analyzer
-- [x] Create Cross-Sell Agent for Recommendations
+- [x] <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">Create Cross-Sell Optimization Engine</span>
+- [x] <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">Create Market Basket Analysis Engine</span>
+- [x] <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Create Product Affinity Matrix Calculator</span>
+- [x] <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Create Promotional Impact Analyzer</span>
+- [x] <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Create Cross-Sell Agent for Recommendations</span>
 
 ### ✅ Phase 3: Integration & Testing (Completed)
-- [x] Integrate with Snowflake database
-- [x] Add comprehensive error handling and logging
-- [x] Create CLI interface for batch operations
-- [x] Implement Streamlit dashboard integration
+- [x] <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">Integrate with Snowflake database</span>
+- [x] <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Add comprehensive error handling and logging</span>
+- [x] <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Create CLI interface for batch operations</span>
+- [x] <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Implement Streamlit dashboard integration</span>
 
 ### ✅ Phase 4: Advanced Features (Completed)
-- [x] Account-specific recommendation engine
-- [x] Promotional campaign optimization
-- [x] Segment-based targeting strategies
-- [x] Real-time analysis capabilities
+- [x] <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">Account-specific recommendation engine</span>
+- [x] <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">Promotional campaign optimization</span>
+- [x] <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">Segment-based targeting strategies</span>
+- [x] <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">Real-time analysis capabilities</span>
 
 ---
 
@@ -52,11 +52,11 @@ src/pmi_retail/
 
 ## 🧠 Core Logic & Algorithms
 
-### 1. Market Basket Analysis Engine
+### 1. <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 6px 12px; border-radius: 6px; color: #c62828; font-weight: bold;">Market Basket Analysis Engine</span>
 
-**Purpose**: Identify product associations and co-occurrence patterns
+**Purpose**: <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Identify product associations and co-occurrence patterns</span>
 
-**Algorithm**: Association Rule Mining with Support, Confidence, and Lift metrics
+**Algorithm**: <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Association Rule Mining with Support, Confidence, and Lift metrics</span>
 
 ```python
 def calculate_market_basket_analysis(self, lookback_days: int = 365) -> pd.DataFrame:
@@ -76,11 +76,11 @@ def calculate_market_basket_analysis(self, lookback_days: int = 365) -> pd.DataF
 - Filters by minimum support (0.01) and confidence (0.1) thresholds
 - Segments analysis by customer segment (Premium, Standard, Basic)
 
-### 2. Product Affinity Matrix Calculator
+### 2. <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 6px 12px; border-radius: 6px; color: #1565c0; font-weight: bold;">Product Affinity Matrix Calculator</span>
 
-**Purpose**: Calculate product-to-product affinity scores using collaborative filtering
+**Purpose**: <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Calculate product-to-product affinity scores using collaborative filtering</span>
 
-**Algorithm**: Cosine Similarity on co-occurrence patterns
+**Algorithm**: <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Cosine Similarity on co-occurrence patterns</span>
 
 ```python
 def calculate_product_affinity_matrix(self, associations_df: pd.DataFrame) -> np.ndarray:
@@ -99,11 +99,11 @@ def calculate_product_affinity_matrix(self, associations_df: pd.DataFrame) -> np
 - Uses cosine similarity to measure product relationship strength
 - Enables collaborative filtering for recommendations
 
-### 3. Promotional Impact Analyzer
+### 3. <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 6px 12px; border-radius: 6px; color: #1565c0; font-weight: bold;">Promotional Impact Analyzer</span>
 
-**Purpose**: Analyze effectiveness of promotional campaigns on cross-sell opportunities
+**Purpose**: <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Analyze effectiveness of promotional campaigns on cross-sell opportunities</span>
 
-**Algorithm**: Campaign performance analysis with revenue impact calculation
+**Algorithm**: <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Campaign performance analysis with revenue impact calculation</span>
 
 ```python
 def analyze_promotional_impact(self, lookback_days: int = 180) -> pd.DataFrame:
@@ -122,11 +122,11 @@ def analyze_promotional_impact(self, lookback_days: int = 180) -> pd.DataFrame:
 - Calculates promotional boost factors (1.2x multiplier)
 - Identifies high-performing campaign-product combinations
 
-### 4. Account-Specific Recommendation Engine
+### 4. <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 6px 12px; border-radius: 6px; color: #c62828; font-weight: bold;">Account-Specific Recommendation Engine</span>
 
-**Purpose**: Generate personalized cross-sell recommendations for individual accounts
+**Purpose**: <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">Generate personalized cross-sell recommendations for individual accounts</span>
 
-**Algorithm**: Hybrid approach combining market basket analysis with account history
+**Algorithm**: <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Hybrid approach combining market basket analysis with account history</span>
 
 ```python
 def generate_account_cross_sell_recommendations(self, account_id: str, include_promotions: bool = True) -> Dict[str, Any]:
@@ -156,37 +156,37 @@ def generate_account_cross_sell_recommendations(self, account_id: str, include_p
 
 ### Implementation Steps
 
-#### Step 1: Data Preparation
+#### <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 6px 12px; border-radius: 6px; color: #c62828; font-weight: bold;">Step 1: Data Preparation</span>
 ```python
-# 1. Connect to Snowflake database
+# 1. <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">Connect to Snowflake database</span>
 sf_manager = SnowflakeManager()
 sf_manager.connect()
 
-# 2. Initialize cross-sell engine
+# 2. <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">Initialize cross-sell engine</span>
 engine = CrossSellOptimizationEngine(sf_manager)
 ```
 
-#### Step 2: Market Basket Analysis
+#### <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 6px 12px; border-radius: 6px; color: #1565c0; font-weight: bold;">Step 2: Market Basket Analysis</span>
 ```python
-# 3. Generate association rules
+# 3. <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Generate association rules</span>
 associations_df = engine.calculate_market_basket_analysis(lookback_days=365)
 
-# 4. Calculate product affinity matrix
+# 4. <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Calculate product affinity matrix</span>
 affinity_matrix = engine.calculate_product_affinity_matrix(associations_df)
 ```
 
-#### Step 3: Promotional Analysis
+#### <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 6px 12px; border-radius: 6px; color: #1565c0; font-weight: bold;">Step 3: Promotional Analysis</span>
 ```python
-# 5. Analyze promotional impact
+# 5. <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Analyze promotional impact</span>
 promotional_df = engine.analyze_promotional_impact(lookback_days=180)
 
-# 6. Generate cross-sell opportunities
+# 6. <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Generate cross-sell opportunities</span>
 opportunities = engine._create_cross_sell_opportunity_summary(associations_df, promotional_df)
 ```
 
-#### Step 4: Account Recommendations
+#### <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 6px 12px; border-radius: 6px; color: #2e7d32; font-weight: bold;">Step 4: Account Recommendations</span>
 ```python
-# 7. Generate account-specific recommendations
+# 7. <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">Generate account-specific recommendations</span>
 agent = CrossSellAgent(sf_manager)
 recommendations = agent.analyze_account_cross_sell_opportunities(account_id)
 ```
@@ -283,22 +283,22 @@ final_score = base_score * promotional_boost
 
 ## 🚀 Usage Examples
 
-### CLI Commands
+### <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 6px 12px; border-radius: 6px; color: #1565c0; font-weight: bold;">CLI Commands</span>
 
 ```bash
-# Generate comprehensive cross-sell analysis
+# <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">Generate comprehensive cross-sell analysis</span>
 uv run pmi-cross-sell analyze --lookback-days 365 --no-save-to-snowflake
 
-# Get account-specific recommendations
+# <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">Get account-specific recommendations</span>
 uv run pmi-cross-sell account-recommendations ACC0011
 
-# Market basket analysis only
+# <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Market basket analysis only</span>
 uv run pmi-cross-sell market-basket --lookback-days 180
 
-# Promotional optimization
+# <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">Promotional optimization</span>
 uv run pmi-cross-sell promotional-optimization --campaign-type seasonal
 
-# System status check
+# <span style="background-color: #fff3e0; border: 2px solid #ff9800; padding: 4px 8px; border-radius: 4px; color: #e65100; font-weight: bold;">System status check</span>
 uv run pmi-cross-sell status
 ```
 

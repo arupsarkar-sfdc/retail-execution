@@ -58,3 +58,5 @@ data/exports/
 # Logs
 logs/
 *.log
+
+env.example

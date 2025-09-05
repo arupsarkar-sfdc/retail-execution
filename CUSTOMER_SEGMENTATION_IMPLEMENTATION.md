@@ -6,39 +6,39 @@ This document provides a comprehensive technical implementation guide for the Re
 
 ## 🎯 Implementation Status
 
-- ✅ **Core Segmentation Engine** - RFM analysis, behavioral segmentation, propensity scoring
-- ✅ **Interactive Dashboard** - Streamlit-based visualization and analytics
-- ✅ **CLI Interface** - Command-line tools for batch operations
-- ✅ **Snowflake Integration** - Real-time data processing and storage
-- ✅ **Business Intelligence** - Opportunity identification and campaign targeting
-- ✅ **3D Visualizations** - Interactive Plotly charts and analytics
+- ✅ <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">**Core Segmentation Engine** - RFM analysis, behavioral segmentation, propensity scoring</span>
+- ✅ <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Interactive Dashboard** - Streamlit-based visualization and analytics</span>
+- ✅ <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**CLI Interface** - Command-line tools for batch operations</span>
+- ✅ <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">**Snowflake Integration** - Real-time data processing and storage</span>
+- ✅ <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Business Intelligence** - Opportunity identification and campaign targeting</span>
+- ✅ <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**3D Visualizations** - Interactive Plotly charts and analytics</span>
 
 ## 🏗️ Core Components
 
-### 1. RealTimeSegmentationEngine (`segmentation_engine.py`)
-- **RFM Analysis**: Recency, Frequency, Monetary calculations
-- **Behavioral Segmentation**: 10 distinct customer segments
-- **Product Propensity Scoring**: Category and brand affinity
-- **Engagement Metrics**: Campaign response, loyalty participation
-- **Data Pipeline**: Complex Snowflake SQL queries and processing
+### 1. <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 6px 12px; border-radius: 6px; color: #c62828; font-weight: bold;">RealTimeSegmentationEngine (`segmentation_engine.py`)</span>
+- <span style="background-color: #ffebee; border: 2px solid #f44336; padding: 4px 8px; border-radius: 4px; color: #c62828; font-weight: bold;">**RFM Analysis**: Recency, Frequency, Monetary calculations</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Behavioral Segmentation**: 10 distinct customer segments</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Product Propensity Scoring**: Category and brand affinity</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Engagement Metrics**: Campaign response, loyalty participation</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Data Pipeline**: Complex Snowflake SQL queries and processing</span>
 
-### 2. SegmentationAgent (`segmentation_engine.py`)
-- **LangChain Integration**: AI-powered recommendations
-- **Business Intelligence**: High-value opportunity identification
-- **Campaign Targeting**: Automated recommendations by campaign type
-- **Strategic Analysis**: Actionable insights and recommendations
+### 2. <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 6px 12px; border-radius: 6px; color: #1565c0; font-weight: bold;">SegmentationAgent (`segmentation_engine.py`)</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**LangChain Integration**: AI-powered recommendations</span>
+- <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Business Intelligence**: High-value opportunity identification</span>
+- <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Campaign Targeting**: Automated recommendations by campaign type</span>
+- <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Strategic Analysis**: Actionable insights and recommendations</span>
 
-### 3. Interactive Dashboard (`segmentation_dashboard.py`)
-- **3D RFM Visualization**: Interactive Plotly scatter plots
-- **Segment Performance**: Revenue, account counts, trend analysis
-- **Business Opportunities**: At-risk customers, expansion targets
-- **Campaign Planning**: Real-time targeting recommendations
+### 3. <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 6px 12px; border-radius: 6px; color: #2e7d32; font-weight: bold;">Interactive Dashboard (`segmentation_dashboard.py`)</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**3D RFM Visualization**: Interactive Plotly scatter plots</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Segment Performance**: Revenue, account counts, trend analysis</span>
+- <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Business Opportunities**: At-risk customers, expansion targets</span>
+- <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Campaign Planning**: Real-time targeting recommendations</span>
 
-### 4. CLI Interface (`segmentation_cli.py`)
-- **Batch Analysis**: Comprehensive segmentation processing
-- **Account Deep Dive**: Individual account profiling
-- **Opportunity Identification**: High-value business opportunities
-- **Campaign Planning**: Automated targeting recommendations
+### 4. <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 6px 12px; border-radius: 6px; color: #1565c0; font-weight: bold;">CLI Interface (`segmentation_cli.py`)</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Batch Analysis**: Comprehensive segmentation processing</span>
+- <span style="background-color: #e3f2fd; border: 2px solid #2196f3; padding: 4px 8px; border-radius: 4px; color: #1565c0; font-weight: bold;">**Account Deep Dive**: Individual account profiling</span>
+- <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Opportunity Identification**: High-value business opportunities</span>
+- <span style="background-color: #e8f5e8; border: 2px solid #4caf50; padding: 4px 8px; border-radius: 4px; color: #2e7d32; font-weight: bold;">**Campaign Planning**: Automated targeting recommendations</span>
 
 ## 🔄 Technical Workflow & Data Flow
 
